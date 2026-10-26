@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Review Email Preview | GradMatch AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .preview-header {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 1px solid #334155;
+    }
+    .preview-iframe-wrapper {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 1rem 0;
+      background: #0f172a;
+    }
+    .preview-iframe {
+      width: 100%;
+      max-width: 720px;
+      height: calc(100vh - 150px);
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .preview-tip-banner {
+      background: #1e3a8a;
+      color: #e0e7ff;
+      padding: 0.65rem 1.5rem;
+      font-size: 0.85rem;
+      text-align: center;
+      border-top: 1px solid #2563eb;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="preview-header">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <span style="font-size: 1.5rem;">📬</span>
+      <div>
+        <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>Admin Application Review Email</span>
+          <span class="badge" style="background: #22c55e; color: #ffffff; font-size: 0.72rem; padding: 2px 8px;">LIVE PREVIEW</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 2px;">
+          Dispatched to: <strong style="color: #cbd5e1;">vinaybandi651@gmail.com</strong> (Recipient)
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <a href="applications.html" class="btn btn-outline btn-sm" style="color: #ffffff; border-color: #475569;">
+        📋 Candidate Applications Tracker
+      </a>
+      <a href="admin.html" class="btn btn-primary btn-sm">
+        ⚙️ Admin Dashboard
+      </a>
+    </div>
+  </header>
+
+  <!-- Interactive Instruction Banner -->
+  <div class="preview-tip-banner">
+    💡 <strong>How it works:</strong> Click <strong>[✓ ACCEPT APPLICATION]</strong> or <strong>[✕ REJECT APPLICATION]</strong> inside the email below. After confirming, refresh your Candidate Dashboard to see the real-time status update!
+  </div>
+
+  <!-- Email IFrame Container -->
+  <div class="preview-iframe-wrapper">
+    <iframe id="email-frame" class="preview-iframe" src="about:blank"></iframe>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const emailId = params.get('id');
+      const appId = params.get('app_id');
+
+      let targetUrl = '';
+      if (emailId) {
+        targetUrl = `/api/admin/emails/${emailId}/view`;
+      } else if (appId) {
+        targetUrl = `/api/applications/${appId}/email-preview`;
+      } else {
+        targetUrl = `/api/admin/emails/latest/view`;
+      }
+
+      document.getElementById('email-frame').src = targetUrl;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    .auth-wrapper {
+      min-height: calc(100vh - 72px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+      background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, rgba(248, 250, 252, 1) 90%);
+    }
+    .auth-card {
+      max-width: 460px;
+      width: 100%;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      padding: 2.5rem;
+    }
+    .input-wrapper {
+      position: relative;
+    }
+    .toggle-pwd-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray-400);
+      font-size: 1.1rem;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toggle-pwd-btn:hover {
+      color: var(--dark-800);
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-top: 0.5rem;
+      border-radius: var(--radius-md);
+    }
+    .field-error {
+      color: var(--danger);
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-top: 0.35rem;
+      display: none;
+    }
+    .success-banner {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .alert-banner {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.88rem;
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+    }
+  </style>
+</head>
+<body style="min-height: 100vh; display: flex; flex-direction: column; background: #f8fafc;">
+
+  <!-- Global Header Navigation -->
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <!-- Header Icon & Titles -->
+      <div style="text-align: center; margin-bottom: 1.75rem;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--primary-light); color: var(--primary); font-size: 1.5rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.85rem;">
+          ⚡
+        </div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark-900); letter-spacing: -0.02em;">
+          Welcome Back
+        </h1>
+        <p style="color: var(--gray-500); font-size: 0.92rem; margin-top: 0.35rem;">
+          Sign in to access your hyperlocal job network
+        </p>
+      </div>
+
+      <!-- Registration Success Banner (shown if redirected after register) -->
+      <div id="register-success-banner" class="success-banner" style="display: none;">
+        <span>✓</span>
+        <div>Registration complete! Please enter your password to sign in.</div>
+      </div>
+
+      <!-- General Alert Banner -->
+      <div id="general-alert-banner" class="alert-banner">
+        <span>⚠️</span>
+        <div id="alert-text">Error message</div>
+      </div>
+
+      <!-- Sign In Form -->
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="your.name@gmail.com" required autocomplete="email">
+          <div id="email_err" class="field-error"></div>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <label class="form-label" for="password" style="margin-bottom: 0;">Password</label>
+            <a href="javascript:void(0)" onclick="handleForgotPassword()" style="font-size: 0.82rem; color: var(--primary); font-weight: 600;">Forgot password?</a>
+          </div>
+          <div class="input-wrapper">
+            <input type="password" id="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password" style="padding-right: 42px;">
+            <button type="button" class="toggle-pwd-btn" onclick="togglePassword('password', this)" title="Show/Hide Password" aria-label="Toggle password visibility">👁️</button>
+          </div>
+          <div id="password_err" class="field-error"></div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-submit">
+          <span>Sign In</span>
+        </button>
+      </form>
+
+      <!-- Bottom Create Account Link -->
+      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.92rem; color: var(--gray-600); border-top: 1px solid var(--gray-100); padding-top: 1.25rem;">
+        Don't have an account yet? <a href="register.html" style="color: var(--primary); font-weight: 700;">Create an account</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      setupNavbar('login');
+      
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('email')) {
+        document.getElementById('email').value = params.get('email');
+      }
+      if (params.get('registered') === 'true') {
+        const banner = document.getElementById('register-success-banner');
+        if (banner) banner.style.display = 'flex';
+      }
+    });
+
+    function togglePassword(fieldId, btn) {
+      const field = document.getElementById(fieldId);
+      if (field.type === 'password') {
+        field.type = 'text';
+        btn.innerText = '🙈';
+      } else {
+        field.type = 'password';
+        btn.innerText = '👁️';
+      }
+    }
+
+    function handleForgotPassword() {
+      const email = document.getElementById('email').value.trim();
+      if (!email) {
+        showToast('Please enter your email address first, then click Forgot Password.', 'info');
+      } else {
+        showToast(`If an account exists for ${email}, a password reset link has been dispatched.`, 'info');
+      }
+    }
+
+    function showError(msg) {
+      const banner = document.getElementById('general-alert-banner');
+      const text = document.getElementById('alert-text');
+      if (banner && text) {
+        text.innerText = msg;
+        banner.style.display = 'flex';
+      }
+    }
+
+    function hideError() {
+      const banner = document.getElementById('general-alert-banner');
+      if (banner) banner.style.display = 'none';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('submit-btn');
+
+      if (!email) {
+        showError('Please enter your email address');
+        document.getElementById('email').focus();
+        return;
+      }
+
+      if (!password) {
+        showError('Please enter your password');
+        document.getElementById('password').focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Signing In...</span>';
+
+      try {
+        const res = await apiRequest('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+
+        if (res && res.token) {
+          setAuthSession(res.user, res.token);
+          showToast(`Welcome back, ${res.user.full_name}!`, 'success');
+
+          setTimeout(() => {
+            if (res.user.role === 'student') {
+              window.location.href = 'dashboard.html';
+            } else if (res.user.role === 'employer') {
+              window.location.href = 'employer_dashboard.html';
+            } else if (res.user.role === 'admin') {
+              window.location.href = 'admin.html';
+            } else {
+              window.location.href = 'index.html';
+            }
+          }, 600);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Sign In</span>';
+        showError(err.message || 'Invalid email or password.');
+      }
+    });
+  </script>
+</body>
+</html>

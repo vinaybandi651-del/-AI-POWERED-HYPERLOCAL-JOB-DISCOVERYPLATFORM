@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Your Account | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    .auth-wrapper {
+      min-height: calc(100vh - 72px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+      background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, rgba(248, 250, 252, 1) 90%);
+    }
+    .auth-card {
+      max-width: 580px;
+      width: 100%;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      padding: 2.5rem;
+    }
+    .role-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      background: var(--gray-100);
+      padding: 0.35rem;
+      border-radius: var(--radius-md);
+      margin: 1.5rem 0 1.75rem;
+    }
+    .role-btn {
+      padding: 0.65rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--gray-600);
+    }
+    .role-btn.active {
+      background: var(--white);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 580px) {
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .auth-card {
+        padding: 1.75rem 1.25rem;
+      }
+    }
+    .field-error {
+      color: var(--danger);
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-top: 0.35rem;
+      display: none;
+    }
+    .input-wrapper {
+      position: relative;
+    }
+    .toggle-pwd-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray-400);
+      font-size: 1.1rem;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toggle-pwd-btn:hover {
+      color: var(--dark-800);
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-top: 0.5rem;
+      border-radius: var(--radius-md);
+    }
+  </style>
+</head>
+<body style="min-height: 100vh; display: flex; flex-direction: column; background: #f8fafc;">
+
+  <!-- Global Header Navigation -->
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <!-- Header Icon & Titles -->
+      <div style="text-align: center;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--primary-light); color: var(--primary); font-size: 1.5rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.85rem;">
+          🎓
+        </div>
+        <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--dark-900); letter-spacing: -0.02em;">
+          Create Your Account
+        </h1>
+        <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 0.35rem;">
+          AI-Powered Hyperlocal Job Matching for Fresh Graduates & Recruiters
+        </p>
+      </div>
+
+      <!-- Role Selector -->
+      <div class="role-toggle">
+        <button type="button" id="role-btn-student" class="role-btn active" onclick="setRole('student')">
+          🎓 Job Seeker (Fresh Graduate)
+        </button>
+        <button type="button" id="role-btn-employer" class="role-btn" onclick="setRole('employer')">
+          🏢 Employer / Recruiter
+        </button>
+      </div>
+
+      <!-- Main Registration Form -->
+      <form id="register-form" novalidate>
+        <input type="hidden" id="selected-role" value="student">
+
+        <!-- First & Last Name -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="first_name">First Name <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="first_name" class="form-control" placeholder="Enter your first name" required autocomplete="given-name">
+            <div id="first_name_err" class="field-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="last_name">Last Name <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="last_name" class="form-control" placeholder="Enter your last name" required autocomplete="family-name">
+            <div id="last_name_err" class="field-error"></div>
+          </div>
+        </div>
+
+        <!-- Email & Phone -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address <span style="color:var(--danger)">*</span></label>
+            <input type="email" id="email" class="form-control" placeholder="your.name@gmail.com" required autocomplete="email">
+            <div id="email_err" class="field-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone Number</label>
+            <input type="tel" id="phone" class="form-control" placeholder="+91 9876543210" autocomplete="tel">
+            <div id="phone_err" class="field-error"></div>
+          </div>
+        </div>
+
+        <!-- Passwords with Toggle Visibility -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="password">Password <span style="color:var(--danger)">*</span></label>
+            <div class="input-wrapper">
+              <input type="password" id="password" class="form-control" placeholder="Min. 8 chars (letters & numbers)" required autocomplete="new-password" style="padding-right: 42px;">
+              <button type="button" class="toggle-pwd-btn" onclick="togglePassword('password', this)" title="Show/Hide Password" aria-label="Toggle password visibility">👁️</button>
+            </div>
+            <div id="password_err" class="field-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="confirm_password">Confirm Password <span style="color:var(--danger)">*</span></label>
+            <div class="input-wrapper">
+              <input type="password" id="confirm_password" class="form-control" placeholder="Re-type your password" required autocomplete="new-password" style="padding-right: 42px;">
+              <button type="button" class="toggle-pwd-btn" onclick="togglePassword('confirm_password', this)" title="Show/Hide Password" aria-label="Toggle password visibility">👁️</button>
+            </div>
+            <div id="confirm_password_err" class="field-error"></div>
+          </div>
+        </div>
+
+        <!-- Fresh Graduate Profile Fields -->
+        <div id="student-extra-fields">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="degree">Degree / Qualification</label>
+              <select id="degree" class="form-control">
+                <option value="B.Tech" selected>B.Tech / B.E.</option>
+                <option value="BCA">BCA (Computer Applications)</option>
+                <option value="MCA">MCA (Master of Computer Applications)</option>
+                <option value="B.Sc">B.Sc (Science / CS / IT / Math)</option>
+                <option value="B.Com">B.Com (Commerce / Accounting)</option>
+                <option value="BBA">BBA (Business Administration)</option>
+                <option value="MBA">MBA (Management)</option>
+                <option value="Diploma">Polytechnic / Diploma</option>
+                <option value="Other">Other Graduate Degree</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="specialization">Specialization / Branch</label>
+              <input type="text" id="specialization" class="form-control" placeholder="e.g. Computer Science, AI, Finance">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="institution">College / University</label>
+              <input type="text" id="institution" class="form-control" placeholder="e.g. Hyderabad Institute of Technology">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="graduation_year">Graduation Year</label>
+              <select id="graduation_year" class="form-control">
+                <option value="2026" selected>2026 (Passed out / Final Year)</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="fresher_status">Experience Level</label>
+              <select id="fresher_status" class="form-control">
+                <option value="Fresher" selected>Fresher (0 years experience, eager to start)</option>
+                <option value="Entry-Level">Entry-Level (0-1 years / Internships)</option>
+                <option value="Experienced">Experienced (1+ years experience)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="skills">Key Skills (comma-separated)</label>
+              <input type="text" id="skills" class="form-control" placeholder="e.g. Python, SQL, React, Communication">
+            </div>
+          </div>
+        </div>
+
+        <!-- Employer Dynamic Fields -->
+        <div id="employer-extra-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="company_name">Company / Organization Name <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="company_name" class="form-control" placeholder="e.g. TechCorp Solutions, CloudByte Labs">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="business_type">Industry Sector</label>
+              <select id="business_type" class="form-control">
+                <option value="Tech & IT" selected>Information Technology & Software</option>
+                <option value="Consulting">Consulting & Analytics</option>
+                <option value="Finance & FinTech">Banking & FinTech</option>
+                <option value="EdTech & Education">Education & EdTech</option>
+                <option value="Healthcare">Healthcare & BioTech</option>
+                <option value="Retail & E-commerce">E-Commerce & Retail</option>
+                <option value="Other">Other Business</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="company_address">Office Location / City</label>
+              <input type="text" id="company_address" class="form-control" placeholder="e.g. Hitec City, Hyderabad">
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-submit">
+          <span>Complete Registration</span>
+        </button>
+      </form>
+
+      <!-- Bottom Sign In Link -->
+      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.92rem; color: var(--gray-600); border-top: 1px solid var(--gray-100); padding-top: 1.25rem;">
+        Already registered? <a href="login.html" style="color: var(--primary); font-weight: 700;">Sign In here</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      setupNavbar('register');
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('role') === 'employer') {
+        setRole('employer');
+      }
+    });
+
+    function togglePassword(fieldId, btn) {
+      const field = document.getElementById(fieldId);
+      if (field.type === 'password') {
+        field.type = 'text';
+        btn.innerText = '🙈';
+      } else {
+        field.type = 'password';
+        btn.innerText = '👁️';
+      }
+    }
+
+    function setRole(role) {
+      document.getElementById('selected-role').value = role;
+      const studentBtn = document.getElementById('role-btn-student');
+      const employerBtn = document.getElementById('role-btn-employer');
+      const studentFields = document.getElementById('student-extra-fields');
+      const employerFields = document.getElementById('employer-extra-fields');
+
+      if (role === 'student') {
+        studentBtn.classList.add('active');
+        employerBtn.classList.remove('active');
+        studentFields.style.display = 'block';
+        employerFields.style.display = 'none';
+      } else {
+        employerBtn.classList.add('active');
+        studentBtn.classList.remove('active');
+        studentFields.style.display = 'none';
+        employerFields.style.display = 'block';
+      }
+    }
+
+    function showFieldError(fieldId, message) {
+      const el = document.getElementById(fieldId + '_err');
+      const input = document.getElementById(fieldId);
+      if (el) {
+        el.innerText = message;
+        el.style.display = 'block';
+      }
+      if (input) {
+        input.style.borderColor = 'var(--danger)';
+      }
+    }
+
+    function clearAllErrors() {
+      ['first_name', 'last_name', 'email', 'phone', 'password', 'confirm_password'].forEach(id => {
+        const el = document.getElementById(id + '_err');
+        const input = document.getElementById(id);
+        if (el) {
+          el.innerText = '';
+          el.style.display = 'none';
+        }
+        if (input) {
+          input.style.borderColor = 'var(--gray-200)';
+        }
+      });
+    }
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearAllErrors();
+
+      const role = document.getElementById('selected-role').value;
+      const firstName = document.getElementById('first_name').value.trim();
+      const lastName = document.getElementById('last_name').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
+      const btn = document.getElementById('submit-btn');
+
+      // Validation
+      let hasError = false;
+
+      if (!firstName) {
+        showFieldError('first_name', 'First name is required');
+        hasError = true;
+      }
+
+      if (!lastName) {
+        showFieldError('last_name', 'Last name is required');
+        hasError = true;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email) {
+        showFieldError('email', 'Email address is required');
+        hasError = true;
+      } else if (!emailRegex.test(email)) {
+        showFieldError('email', 'Please enter a valid email address (e.g. name@domain.com)');
+        hasError = true;
+      }
+
+      if (!password) {
+        showFieldError('password', 'Password is required');
+        hasError = true;
+      } else if (password.length < 8) {
+        showFieldError('password', 'Password must be at least 8 characters long');
+        hasError = true;
+      } else if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+        showFieldError('password', 'Password must contain at least one letter and one number');
+        hasError = true;
+      }
+
+      if (!confirmPassword) {
+        showFieldError('confirm_password', 'Please confirm your password');
+        hasError = true;
+      } else if (password !== confirmPassword) {
+        showFieldError('confirm_password', 'Passwords do not match');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      const payload = {
+        role,
+        first_name: firstName,
+        last_name: lastName,
+        full_name: `${firstName} ${lastName}`.trim(),
+        email,
+        phone,
+        password,
+        confirm_password: confirmPassword
+      };
+
+      if (role === 'student') {
+        const degree = document.getElementById('degree').value;
+        const spec = document.getElementById('specialization').value.trim();
+        const inst = document.getElementById('institution').value.trim();
+        const gradYear = parseInt(document.getElementById('graduation_year').value, 10);
+        const fresherStatus = document.getElementById('fresher_status').value;
+        const rawSkills = document.getElementById('skills').value;
+
+        payload.degree = degree;
+        payload.specialization = spec;
+        payload.education = spec ? `${degree} in ${spec}` : degree;
+        payload.institution = inst || 'University';
+        payload.college_name = inst || 'University';
+        payload.graduation_year = gradYear;
+        payload.fresher_status = fresherStatus;
+        payload.experience_level = fresherStatus;
+        payload.skills = rawSkills ? rawSkills.split(',').map(s => s.trim()).filter(Boolean) : ['Problem Solving', 'Communication'];
+      } else {
+        const comp = document.getElementById('company_name').value.trim();
+        payload.company_name = comp || `${firstName}'s Enterprise`;
+        payload.business_type = document.getElementById('business_type').value;
+        payload.address = document.getElementById('company_address').value.trim() || 'Hitec City, Hyderabad';
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Creating Account...</span>';
+
+      try {
+        const res = await apiRequest('/auth/register', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        if (res && res.success) {
+          showToast('Account registered successfully! Redirecting to login...', 'success');
+          setTimeout(() => {
+            window.location.href = `login.html?registered=true&email=${encodeURIComponent(email)}`;
+          }, 1200);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Create Account</span>';
+        // Detailed toast is already shown by apiRequest
+      }
+    });
+  </script>
+</body>
+</html>

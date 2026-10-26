@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Email | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body style="min-height: 100vh; display: flex; flex-direction: column; background: #f8fafc;">
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container" style="max-width: 480px; margin: 3.5rem auto; flex: 1;">
+    <div class="card" style="padding: 2.5rem; box-shadow: var(--shadow-lg); text-align: center;">
+      
+      <div class="brand-icon" style="margin: 0 auto 1rem; width: 56px; height: 56px; font-size: 1.8rem; background: #e0e7ff; color: var(--primary);">✉️</div>
+      <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark-900); letter-spacing: -0.02em;">Verify Your Email</h1>
+      <p style="color: var(--gray-500); font-size: 0.92rem; margin-top: 0.35rem; line-height: 1.5;">
+        We've generated a 6-digit verification code to activate your account.
+      </p>
+
+      <div id="email-display-badge" style="display: inline-block; background: #f1f5f9; color: var(--dark-800); font-size: 0.85rem; font-weight: 600; padding: 0.35rem 0.85rem; border-radius: 20px; margin: 1rem 0 1.5rem 0;">
+        Account Email: <span id="display-email">...</span>
+      </div>
+
+      <div id="auto-status" style="display: none; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-size: 0.9rem;"></div>
+
+      <form id="verify-form" onsubmit="submitOtpVerification(event)">
+        <input type="hidden" id="verify-email">
+        <input type="hidden" id="verify-token">
+
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label" for="otp-input" style="text-align: center; font-size: 0.85rem;">Enter 6-Digit Verification Code</label>
+          <input type="text" id="otp-input" class="form-control" placeholder="123456" maxlength="6" style="text-align: center; font-size: 1.8rem; letter-spacing: 8px; font-weight: 800; padding: 0.75rem;" required pattern="\d{6}">
+        </div>
+
+        <button type="submit" id="verify-btn" class="btn btn-primary" style="width: 100%; padding: 0.85rem; margin-top: 1rem; font-size: 1rem; font-weight: 700;">
+          Verify & Continue
+        </button>
+      </form>
+
+      <div style="margin-top: 1.75rem; border-top: 1px solid var(--gray-200); padding-top: 1.25rem;">
+        <p style="font-size: 0.85rem; color: var(--gray-500); margin: 0 0 0.5rem 0;">Didn't receive the email or code expired?</p>
+        <button type="button" onclick="resendCode()" id="resend-btn" class="btn btn-outline btn-sm" style="font-size: 0.82rem;">
+          ↻ Resend Verification Code
+        </button>
+      </div>
+
+      <div style="margin-top: 1.25rem; font-size: 0.85rem;">
+        <a href="login.html" style="color: var(--primary); font-weight: 600;">← Back to Sign In</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      setupNavbar('login');
+      const params = new URLSearchParams(window.location.search);
+      const email = params.get('email') || '';
+      const token = params.get('token') || '';
+      const otp = params.get('otp') || '';
+
+      document.getElementById('verify-email').value = email;
+      document.getElementById('display-email').innerText = email || 'Your registered email';
+      document.getElementById('verify-token').value = token;
+
+      if (otp) {
+        document.getElementById('otp-input').value = otp;
+      }
+
+      // If token is present, attempt automatic verification
+      if (token) {
+        await verifyWithToken(token);
+      }
+    });
+
+    async function verifyWithToken(token) {
+      const statusBox = document.getElementById('auto-status');
+      statusBox.style.display = 'block';
+      statusBox.style.background = '#eef2ff';
+      statusBox.style.color = 'var(--primary)';
+      statusBox.innerText = 'Verifying link security token...';
+
+      try {
+        const res = await apiRequest('/auth/verify-email', {
+          method: 'POST',
+          body: JSON.stringify({ token })
+        });
+
+        if (res && res.success) {
+          statusBox.style.background = '#ecfdf5';
+          statusBox.style.color = '#047857';
+          statusBox.innerHTML = '<strong>✓ Email Verified Successfully!</strong><br>Redirecting to Sign In...';
+          showToast('Email verified successfully! You may now log in.', 'success');
+          setTimeout(() => {
+            const email = document.getElementById('verify-email').value;
+            window.location.href = `login.html?email=${encodeURIComponent(email)}`;
+          }, 1500);
+        }
+      } catch (err) {
+        statusBox.style.background = '#fef2f2';
+        statusBox.style.color = '#b91c1c';
+        statusBox.innerText = 'Token verification failed: ' + err.message + '. Please enter your 6-digit OTP code below.';
+      }
+    }
+
+    async function submitOtpVerification(e) {
+      e.preventDefault();
+      const email = document.getElementById('verify-email').value.trim();
+      const otp = document.getElementById('otp-input').value.trim();
+      const btn = document.getElementById('verify-btn');
+
+      if (!email) {
+        const promptEmail = prompt('Please confirm your registered email address:');
+        if (!promptEmail) return;
+        document.getElementById('verify-email').value = promptEmail;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Verifying...';
+
+      try {
+        const res = await apiRequest('/auth/verify-email', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: document.getElementById('verify-email').value.trim(),
+            otp: otp
+          })
+        });
+
+        if (res && res.success) {
+          showToast('Email verified successfully! 🎉', 'success');
+          setTimeout(() => {
+            window.location.href = `login.html?email=${encodeURIComponent(document.getElementById('verify-email').value)}`;
+          }, 1000);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = 'Verify & Continue';
+      }
+    }
+
+    async function resendCode() {
+      let email = document.getElementById('verify-email').value.trim();
+      if (!email) {
+        email = prompt('Enter your registered email address to resend the code:');
+        if (!email) return;
+        document.getElementById('verify-email').value = email;
+      }
+
+      const resendBtn = document.getElementById('resend-btn');
+      resendBtn.disabled = true;
+      resendBtn.innerText = 'Sending...';
+
+      try {
+        const res = await apiRequest('/auth/resend-verification', {
+          method: 'POST',
+          body: JSON.stringify({ email })
+        });
+
+        if (res && res.success) {
+          showToast(res.message || 'Verification code resent!', 'success');
+          if (res.otp_code) {
+            document.getElementById('otp-input').value = res.otp_code;
+          }
+        }
+      } catch (err) {
+      } finally {
+        resendBtn.disabled = false;
+        resendBtn.innerText = '↻ Resend Verification Code';
+      }
+    }
+  </script>
+</body>
+</html>

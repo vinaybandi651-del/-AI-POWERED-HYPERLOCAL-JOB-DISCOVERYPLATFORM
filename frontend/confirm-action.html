@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Application Action | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body style="min-height: 100vh; display: flex; flex-direction: column; background: #f8fafc;">
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">⚡</div>
+        <span>HyperLocal <span style="color:var(--primary);">JobMatch</span></span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="container" style="max-width: 620px; margin: 3rem auto; flex: 1;">
+    
+    <!-- Loading State -->
+    <div id="loading-card" class="card" style="padding: 3rem; text-align: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔒</div>
+      <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark-900);">Verifying Security Token...</h2>
+      <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 0.5rem;">
+        Validating action cryptographic token against the database...
+      </p>
+    </div>
+
+    <!-- Error State Cards -->
+    <div id="error-card" class="card" style="display: none; padding: 2.5rem; text-align: center; border-top: 5px solid #dc2626;">
+      <div id="error-icon" style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+      <h2 id="error-title" style="font-size: 1.4rem; font-weight: 800; color: var(--dark-900);">Action Link Invalid</h2>
+      <p id="error-message" style="color: var(--gray-600); font-size: 0.95rem; line-height: 1.6; margin: 1rem 0 1.5rem 0;">
+        This action link cannot be verified or has expired.
+      </p>
+      <div id="error-details-box" style="display:none; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:20px; font-size:0.85rem; color:#475569;"></div>
+      <a href="index.html" class="btn btn-secondary">Return to Home</a>
+    </div>
+
+    <!-- Action Confirmation Form Card -->
+    <div id="confirm-card" class="card" style="display: none; padding: 2.5rem; box-shadow: var(--shadow-lg);">
+      
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+          <span id="action-badge" class="badge" style="font-size: 0.85rem; font-weight: 800; padding: 0.4rem 0.9rem; text-transform: uppercase;"></span>
+          <h1 id="confirm-title" style="font-size: 1.6rem; font-weight: 800; color: var(--dark-900); margin: 0.5rem 0 0.25rem 0;">Confirm Application Decision</h1>
+          <div style="font-size: 0.85rem; color: var(--gray-500);">
+            Application Reference: <strong id="ref-code-display" style="color: var(--dark-800);"></strong>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="font-size: 0.78rem; font-weight: 700; color: var(--gray-500); text-transform: uppercase; margin-bottom: 0.5rem;">Application Summary</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.9rem;">
+          <div>
+            <span style="color: var(--gray-500); font-size: 0.8rem; display: block;">Applicant Name:</span>
+            <strong id="applicant-name" style="color: var(--dark-900);"></strong>
+          </div>
+          <div>
+            <span style="color: var(--gray-500); font-size: 0.8rem; display: block;">Applicant Email:</span>
+            <span id="applicant-email" style="color: var(--dark-900);"></span>
+          </div>
+          <div>
+            <span style="color: var(--gray-500); font-size: 0.8rem; display: block;">Position / Role:</span>
+            <strong id="job-title" style="color: var(--dark-900);"></strong>
+          </div>
+          <div>
+            <span style="color: var(--gray-500); font-size: 0.8rem; display: block;">Employer / Company:</span>
+            <span id="company-name" style="color: var(--dark-900);"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="action-notice-box" style="padding: 1rem; border-radius: var(--radius-md); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.5rem;"></div>
+
+      <form id="decision-form" onsubmit="executeDecision(event)">
+        <div class="form-group">
+          <label class="form-label" for="decision-notes" style="font-size: 0.85rem;">Reviewer Decision Note (Optional)</label>
+          <textarea id="decision-notes" class="form-control" rows="3" placeholder="Add any internal note or communication for audit records..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.75rem; justify-content: flex-end;">
+          <a href="index.html" class="btn btn-outline">Cancel</a>
+          <button type="submit" id="confirm-submit-btn" class="btn" style="font-weight: 700; padding: 0.8rem 1.8rem; font-size: 0.95rem;">
+            Confirm Action
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+    <!-- Success Card -->
+    <div id="success-card" class="card" style="display: none; padding: 3rem; text-align: center; border-top: 5px solid #16a34a;">
+      <div style="font-size: 3.5rem; margin-bottom: 1rem;">✅</div>
+      <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--dark-900);">Application Decision Finalized</h2>
+      <p id="success-message" style="color: var(--gray-600); font-size: 0.95rem; line-height: 1.6; margin: 1rem 0 1.5rem 0;"></p>
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 24px; font-size: 0.88rem; color: #334155;">
+        The student has been notified via email, and the live status has been updated in the database and dashboard.
+      </div>
+      <a href="index.html" class="btn btn-primary">Return to HyperLocal Job Match</a>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    let rawToken = '';
+    let inspectedData = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      rawToken = params.get('token') || '';
+
+      if (!rawToken) {
+        showError('Missing Action Token', 'No security action token was provided in the link. Please open the link directly from your notification email.');
+        return;
+      }
+
+      await inspectToken();
+    });
+
+    async function inspectToken() {
+      try {
+        const res = await apiRequest(`/applications/action/inspect?token=${encodeURIComponent(rawToken)}`);
+        
+        if (res && res.valid) {
+          inspectedData = res;
+          renderConfirmation(res);
+        } else {
+          showError('Verification Failed', res.error || 'Token could not be validated.');
+        }
+      } catch (err) {
+        showError('Invalid or Expired Link', err.message || 'The token is invalid, expired, or has already been used.');
+      }
+    }
+
+    function renderConfirmation(data) {
+      document.getElementById('loading-card').style.display = 'none';
+      document.getElementById('confirm-card').style.display = 'block';
+
+      const isAccept = data.action === 'accept';
+      const badge = document.getElementById('action-badge');
+      const title = document.getElementById('confirm-title');
+      const noticeBox = document.getElementById('action-notice-box');
+      const submitBtn = document.getElementById('confirm-submit-btn');
+
+      document.getElementById('ref-code-display').innerText = data.reference_code;
+      document.getElementById('applicant-name').innerText = data.applicant_name;
+      document.getElementById('applicant-email').innerText = data.applicant_email;
+      document.getElementById('job-title').innerText = data.job_title;
+      document.getElementById('company-name').innerText = data.company_name;
+
+      if (isAccept) {
+        badge.style.background = '#dcfce7';
+        badge.style.color = '#15803d';
+        badge.innerText = '✓ Accept Application';
+
+        title.innerText = `Accept ${data.applicant_name} for "${data.job_title}"`;
+
+        noticeBox.style.background = '#f0fdf4';
+        noticeBox.style.border = '1px solid #bbf7d0';
+        noticeBox.style.color = '#166534';
+        noticeBox.innerHTML = `<strong>Action Details:</strong> Confirming this action will update the application status to <strong>ACCEPTED</strong> in the database and send an official congratulations email to the applicant.`;
+
+        submitBtn.style.background = '#16a34a';
+        submitBtn.style.color = '#ffffff';
+        submitBtn.innerText = '✓ Confirm & Accept Candidate';
+      } else {
+        badge.style.background = '#fee2e2';
+        badge.style.color = '#b91c1c';
+        badge.innerText = '✕ Reject Application';
+
+        title.innerText = `Reject Application for "${data.job_title}"`;
+
+        noticeBox.style.background = '#fef2f2';
+        noticeBox.style.border = '1px solid #fecdd3';
+        noticeBox.style.color = '#991b1b';
+        noticeBox.innerHTML = `<strong>Action Details:</strong> Confirming this action will update the application status to <strong>REJECTED</strong> and send a respectful update email to the applicant.`;
+
+        submitBtn.style.background = '#dc2626';
+        submitBtn.style.color = '#ffffff';
+        submitBtn.innerText = '✕ Confirm Rejection';
+      }
+    }
+
+    function showError(title, message) {
+      document.getElementById('loading-card').style.display = 'none';
+      document.getElementById('confirm-card').style.display = 'none';
+      document.getElementById('error-card').style.display = 'block';
+
+      document.getElementById('error-title').innerText = title;
+      document.getElementById('error-message').innerText = message;
+    }
+
+    async function executeDecision(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('confirm-submit-btn');
+      const notes = document.getElementById('decision-notes').value.trim();
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Finalizing Decision...';
+
+      try {
+        const res = await apiRequest('/applications/action/confirm', {
+          method: 'POST',
+          body: JSON.stringify({
+            token: rawToken,
+            notes: notes
+          })
+        });
+
+        if (res && res.success) {
+          document.getElementById('confirm-card').style.display = 'none';
+          document.getElementById('success-card').style.display = 'block';
+          document.getElementById('success-message').innerText = res.message;
+        }
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Try Again';
+        showToast(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

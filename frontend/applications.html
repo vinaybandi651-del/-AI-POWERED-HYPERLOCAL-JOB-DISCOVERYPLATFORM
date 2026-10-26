@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Applications | GradMatch AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body style="background: #f8fafc;">
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container" style="max-width: 1040px; margin-top: 1.5rem; margin-bottom: 3rem;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark-900);">My Applications Tracker</h1>
+        <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 0.2rem;">
+          Track your real-time status across local employers from submission to completion.
+        </p>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div style="display: flex; gap: 0.4rem; background: var(--gray-100); padding: 0.25rem; border-radius: var(--radius-md);">
+        <button class="btn btn-sm app-tab active" onclick="filterApps('all', this)" style="background:var(--white); color:var(--primary); font-weight:700;">All</button>
+        <button class="btn btn-sm app-tab" onclick="filterApps('pending', this)" style="color:var(--gray-600);">Pending ⏳</button>
+        <button class="btn btn-sm app-tab" onclick="filterApps('active', this)" style="color:var(--gray-600);">In Progress</button>
+        <button class="btn btn-sm app-tab" onclick="filterApps('accepted', this)" style="color:var(--gray-600);">Accepted 🎉</button>
+        <button class="btn btn-sm app-tab" onclick="filterApps('completed', this)" style="color:var(--gray-600);">Completed</button>
+      </div>
+    </div>
+
+    <!-- Application Cards Container -->
+    <div id="applications-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div style="text-align: center; padding: 4rem; color: var(--gray-500);">Loading your application history...</div>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    let myApplications = [];
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!requireAuth(['student'])) return;
+      setupNavbar('applications');
+      await loadApplications();
+    });
+
+    async function loadApplications() {
+      try {
+        const res = await apiRequest('/applications/my');
+        if (res && res.applications) {
+          myApplications = res.applications;
+          renderApplications();
+        }
+      } catch (err) {
+        document.getElementById('applications-container').innerHTML = `
+          <div style="text-align:center; padding:3rem; color:var(--danger);">Error loading applications.</div>
+        `;
+      }
+    }
+
+    function filterApps(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.app-tab').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--gray-600)';
+        b.style.fontWeight = '500';
+      });
+      btn.style.background = 'var(--white)';
+      btn.style.color = 'var(--primary)';
+      btn.style.fontWeight = '700';
+      renderApplications();
+    }
+
+    function renderApplications() {
+      const container = document.getElementById('applications-container');
+      
+      let filtered = myApplications;
+      if (currentFilter === 'pending') {
+        filtered = myApplications.filter(a => a.status === 'pending');
+      } else if (currentFilter === 'active') {
+        filtered = myApplications.filter(a => ['pending', 'applied', 'under_review', 'shortlisted'].includes(a.status));
+      } else if (currentFilter === 'accepted') {
+        filtered = myApplications.filter(a => a.status === 'accepted');
+      } else if (currentFilter === 'completed') {
+        filtered = myApplications.filter(a => a.status === 'completed');
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="padding: 3rem; text-align: center; color: var(--gray-500);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📄</div>
+            <div style="font-weight: 700; color: var(--dark-800);">No applications found</div>
+            <div style="font-size: 0.85rem; margin-top: 0.25rem;">Explore AI recommended opportunities and submit your first application!</div>
+            <a href="dashboard.html" class="btn btn-primary btn-sm" style="margin-top: 1rem;">View Recommendations</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(app => {
+        const stages = ['applied', 'under_review', 'shortlisted', 'accepted', 'completed'];
+        let currentIdx = stages.indexOf(app.status);
+        if (app.status === 'pending') {
+          currentIdx = 0;
+        }
+        const isRejected = app.status === 'rejected';
+        const isPending = app.status === 'pending';
+
+        return `
+          <div class="card" style="padding: 1.75rem;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                  <span class="badge" style="background:#e0e7ff; color:var(--primary); font-weight:700;">${app.category}</span>
+                  ${app.reference_code ? `<span class="badge" style="background:var(--gray-100); color:var(--gray-600); font-family:monospace; font-size:0.75rem;">Ref: ${app.reference_code}</span>` : ''}
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--dark-900); margin: 0.25rem 0;">
+                  <a href="job_details.html?id=${app.job_id}" style="color:inherit;">${app.job_title}</a>
+                </h3>
+                <div style="font-size: 0.9rem; color: var(--gray-600); font-weight: 500;">
+                  🏢 ${app.company_name} • 📍 ${app.location_address}
+                </div>
+              </div>
+
+              <div style="text-align: right;">
+                <span class="badge status-${app.status}" style="font-size: 0.9rem; padding: 0.35rem 0.75rem;">
+                  ${app.status.replace('_', ' ').toUpperCase()}
+                </span>
+                <div style="font-size: 0.75rem; color: var(--gray-400); margin-top: 0.35rem;">
+                  Applied: ${new Date(app.applied_at).toLocaleDateString()}
+                  ${app.decided_at ? `<br><span style="color:var(--dark-700); font-weight:600;">Decided: ${new Date(app.decided_at).toLocaleDateString()}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <!-- Notification Banner for Accepted / Rejected / Pending Statuses -->
+            ${isPending ? `
+              <div style="background:#fffbeb; border:1px solid #fde68a; color:#92400e; padding:0.85rem 1.15rem; border-radius:var(--radius-sm); margin:1.25rem 0; font-size:0.88rem; display:flex; align-items:center; gap:0.75rem;">
+                <span style="font-size:1.2rem;">⏳</span>
+                <div>
+                  <strong>Application Pending Review</strong>
+                  <div style="font-size:0.8rem; margin-top:0.15rem; color:#b45309;">Your application has been received and forwarded to the administrator/hiring team for review. You will be notified once a decision is made.</div>
+                </div>
+              </div>
+            ` : ''}
+            ${app.status === 'accepted' ? `
+              <div style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; padding:0.85rem 1.15rem; border-radius:var(--radius-sm); margin:1.25rem 0; font-size:0.88rem; display:flex; align-items:center; gap:0.75rem;">
+                <span style="font-size:1.2rem;">🎉</span>
+                <div>
+                  <strong>Your application has been accepted.</strong>
+                  <div style="font-size:0.8rem; margin-top:0.15rem; color:#047857;">The hiring team has approved your application. Please check your email for direct onboarding and interview instructions.</div>
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- Visual Multi-Step Pipeline Track -->
+            ${isRejected ? `
+              <div style="background:#fee2e2; border:1px solid #fecaca; color:#b91c1c; padding:0.85rem 1.15rem; border-radius:var(--radius-sm); margin:1.25rem 0; font-size:0.88rem; display:flex; align-items:center; gap:0.75rem;">
+                <span style="font-size:1.2rem;">⚠️</span>
+                <div>
+                  <strong>Your application has been rejected.</strong>
+                  <div style="font-size:0.8rem; margin-top:0.2rem; color:#991b1b;">Thank you for your interest. Keep exploring other nearby career opportunities on your dashboard.</div>
+                  ${app.decision_note ? `<div style="font-size:0.8rem; margin-top:0.2rem; font-style:italic;">Reviewer Note: "${app.decision_note}"</div>` : ''}
+                </div>
+              </div>
+            ` : `
+              <div class="pipeline-track">
+                <div class="pipeline-step ${currentIdx >= 0 ? (currentIdx > 0 ? 'completed' : 'active') : ''}">
+                  <div class="pipeline-dot">1</div>
+                  <span class="pipeline-label">Applied</span>
+                </div>
+                <div class="pipeline-step ${currentIdx >= 1 ? (currentIdx > 1 ? 'completed' : 'active') : ''}">
+                  <div class="pipeline-dot">2</div>
+                  <span class="pipeline-label">Review</span>
+                </div>
+                <div class="pipeline-step ${currentIdx >= 2 ? (currentIdx > 2 ? 'completed' : 'active') : ''}">
+                  <div class="pipeline-dot">3</div>
+                  <span class="pipeline-label">Shortlisted</span>
+                </div>
+                <div class="pipeline-step ${currentIdx >= 3 ? (currentIdx > 3 ? 'completed' : 'active') : ''}">
+                  <div class="pipeline-dot">4</div>
+                  <span class="pipeline-label">Accepted</span>
+                </div>
+                <div class="pipeline-step ${currentIdx >= 4 ? 'completed active' : ''}">
+                  <div class="pipeline-dot">5</div>
+                  <span class="pipeline-label">Completed</span>
+                </div>
+              </div>
+            `}
+
+            <!-- Cover Note -->
+            ${app.cover_note ? `
+              <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin: 0.75rem 0; font-size: 0.85rem; color: var(--dark-700);">
+                <strong style="color:var(--gray-500); font-size:0.75rem; display:block; text-transform:uppercase;">Cover Note Sent:</strong>
+                "${app.cover_note}"
+              </div>
+            ` : ''}
+
+            <!-- Employer Status Note -->
+            ${app.status_notes ? `
+              <div style="background: #f8fafc; border-left: 3px solid var(--primary); padding: 0.65rem 0.9rem; border-radius: 4px; margin: 0.75rem 0; font-size: 0.85rem; color: var(--dark-800); border: 1px solid #e2e8f0; border-left-width: 4px; border-left-color: var(--primary);">
+                <strong style="color:var(--primary); font-size:0.75rem; display:block; text-transform:uppercase; margin-bottom:0.2rem;">Employer Feedback / Status Note:</strong>
+                "${escapeHtml(app.status_notes)}"
+              </div>
+            ` : ''}
+
+            <!-- Bottom Action Row -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-100); flex-wrap: wrap; gap: 0.75rem;">
+              <div style="font-size: 0.85rem; color: #047857; font-weight: 700;">
+                ${app.salary_min && app.salary_max ? `💰 ₹${(app.salary_min/100000).toFixed(1)}L - ₹${(app.salary_max/100000).toFixed(1)}L CTC` : `💰 ₹${Number(app.pay_amount || 0).toLocaleString('en-IN')} / ${app.pay_frequency}`} • ⏱️ ${app.job_type}
+              </div>
+
+                ${['pending', 'applied', 'under_review'].includes(app.status) ? `
+                  <button class="btn btn-sm" style="background:#fff1f2; color:#be123c; border:1px solid #fecdd3; font-weight:600;" onclick="withdrawApp(${app.application_id}, '${escapeHtml(app.job_title)}')">
+                    ✕ Withdraw
+                  </button>
+                ` : ''}
+                ${['accepted', 'completed'].includes(app.status) ? `
+                  <button class="btn btn-sm" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-weight:700;" onclick="openReviewModal(${app.job_id}, ${app.employer_user_id}, '${escapeHtml(app.company_name)}', '${escapeHtml(app.job_title)}')">
+                    ⭐ Rate Employer
+                  </button>
+                ` : ''}
+                <a href="chat.html?user_id=${app.employer_user_id}&job_id=${app.job_id}" class="btn btn-outline btn-sm">
+                  💬 Message ${app.company_name}
+                </a>
+                <a href="job_details.html?id=${app.job_id}" class="btn btn-secondary btn-sm">
+                  View Job Details
+                </a>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      return (text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function openReviewModal(jobId, employerUserId, companyName, jobTitle) {
+      document.getElementById('review-job-id').value = jobId;
+      document.getElementById('review-reviewee-id').value = employerUserId;
+      document.getElementById('review-modal-title').innerText = `Feedback for ${companyName}`;
+      document.getElementById('review-modal-subtitle').innerText = `Role: ${jobTitle}`;
+      document.getElementById('review-comment').value = '';
+      document.getElementById('review-rating').value = '5';
+      document.getElementById('review-modal').classList.add('active');
+    }
+
+    function closeReviewModal() {
+      document.getElementById('review-modal').classList.remove('active');
+    }
+
+    async function submitReview(e) {
+      e.preventDefault();
+      const jobId = parseInt(document.getElementById('review-job-id').value);
+      const revieweeId = parseInt(document.getElementById('review-reviewee-id').value);
+      const rating = parseFloat(document.getElementById('review-rating').value);
+      const comment = document.getElementById('review-comment').value.trim();
+      const btn = document.getElementById('submit-review-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Submitting...';
+
+      try {
+        const res = await apiRequest('/reviews', {
+          method: 'POST',
+          body: JSON.stringify({
+            job_id: jobId,
+            reviewee_id: revieweeId,
+            rating: rating,
+            comment: comment
+          })
+        });
+
+        if (res) {
+          showToast('Thank you! Your feedback and rating have been recorded ⭐', 'success');
+          closeReviewModal();
+          await loadApplications();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Submit Review';
+      }
+    }
+
+    async function withdrawApp(appId, jobTitle) {
+      if (!confirm(`Are you sure you want to withdraw your application for "${jobTitle}"?`)) return;
+      try {
+        const res = await apiRequest(`/applications/${appId}`, { method: 'DELETE' });
+        showToast(res.message || 'Application withdrawn successfully', 'success');
+        await loadApplications();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+  </script>
+
+  <!-- Review Modal -->
+  <div id="review-modal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="review-modal-title" style="font-weight: 700; font-size: 1.15rem; color: var(--dark-900);">Leave a Review</h3>
+          <p id="review-modal-subtitle" style="font-size: 0.85rem; color: var(--gray-500); margin: 0;"></p>
+        </div>
+        <button onclick="closeReviewModal()" style="font-size: 1.25rem; color: var(--gray-400); background:none; border:none; cursor:pointer;">&times;</button>
+      </div>
+
+      <form onsubmit="submitReview(event)">
+        <div class="modal-body">
+          <input type="hidden" id="review-job-id">
+          <input type="hidden" id="review-reviewee-id">
+
+          <div class="form-group">
+            <label class="form-label" for="review-rating">Overall Rating</label>
+            <select id="review-rating" class="form-control" style="font-size: 1rem; padding: 0.6rem;">
+              <option value="5">⭐⭐⭐⭐⭐ 5.0 - Exceptional Experience</option>
+              <option value="4">⭐⭐⭐⭐ 4.0 - Good Work Environment</option>
+              <option value="3">⭐⭐⭐ 3.0 - Satisfactory / Average</option>
+              <option value="2">⭐⭐ 2.0 - Below Expectations</option>
+              <option value="1">⭐ 1.0 - Poor Experience</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="review-comment">Your Feedback & Experience</label>
+            <textarea id="review-comment" class="form-control" rows="4" placeholder="Describe the work environment, timely payment, employer support, etc." required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeReviewModal()">Cancel</button>
+          <button type="submit" id="submit-review-btn" class="btn btn-primary">Submit Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Powered Hyperlocal Job Recommendation and Matching System for Fresh Graduates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <!-- Injected by setupNavbar('home') in api.js -->
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-pill">
+      <span>🎓 AI-Powered Hyperlocal Job Recommendation and Matching System for Fresh Graduates</span>
+    </div>
+    <h1 class="hero-title">
+      Launch Your Career with <span class="gradient-text">AI Hyperlocal Matching</span>
+    </h1>
+    <p class="hero-subtitle">
+      Connecting passed-out graduates and freshers (B.Tech, BCA, MCA, B.Sc, B.Com, MBA) with verified entry-level jobs and internships matched by academic qualification, technical skills, 0-years experience fit, and live location.
+    </p>
+    <div class="hero-cta-group">
+      <a href="register.html?role=student" class="btn btn-primary btn-lg">🎓 Register as Fresh Graduate</a>
+      <a href="register.html?role=employer" class="btn btn-secondary btn-lg">🏢 Employer & Recruiter Portal</a>
+      <a href="jobs.html" class="btn btn-outline btn-lg">🔍 Explore All Jobs & Map</a>
+    </div>
+
+    <!-- Quick Stats Bar -->
+    <div style="max-width: 960px; margin: 4rem auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; background: var(--white); padding: 1.75rem 2rem; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: var(--shadow-md);">
+      <div>
+        <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">94.8%</div>
+        <div style="font-size: 0.85rem; color: var(--gray-500); font-weight: 600;">Average AI Match Accuracy</div>
+      </div>
+      <div>
+        <div style="font-size: 2rem; font-weight: 800; color: #059669;">&lt; 3.0 km</div>
+        <div style="font-size: 0.85rem; color: var(--gray-500); font-weight: 600;">Average Travel Radius</div>
+      </div>
+      <div>
+        <div style="font-size: 2rem; font-weight: 800; color: #7c3aed;">50+</div>
+        <div style="font-size: 0.85rem; color: var(--gray-500); font-weight: 600;">Verified Active Gigs</div>
+      </div>
+      <div>
+        <div style="font-size: 2rem; font-weight: 800; color: #ea580c;">20+</div>
+        <div style="font-size: 0.85rem; color: var(--gray-500); font-weight: 600;">Student Profiles Analyzed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="container" style="padding-top: 4rem; padding-bottom: 4rem;">
+    <div style="text-align: center; max-width: 640px; margin: 0 auto 3rem;">
+      <h2 style="font-size: 2.25rem; font-weight: 800; color: var(--dark-900); letter-spacing: -0.02em;">How It Works</h2>
+      <p style="color: var(--gray-600); margin-top: 0.5rem; font-size: 1.05rem;">
+        An intelligent bridge connecting students with flexible part-time gigs and local shops needing fast reliable help.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-box">📍</div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">1. Hyperlocal Geo-Detection</h3>
+        <p style="color: var(--gray-600); font-size: 0.925rem; line-height: 1.6;">
+          Specify your campus hostel, home coordinates, or allow browser GPS. The Haversine algorithm continuously ranks jobs within 1–10 km of where you actually are.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">🧠</div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">2. Hybrid AI Recommendation</h3>
+        <p style="color: var(--gray-600); font-size: 0.925rem; line-height: 1.6;">
+          Content-based TF-IDF compares your skills and coursework, while collaborative filtering identifies roles your peer students engaged with and succeeded at.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">💬</div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">3. Instant Apply & Chat</h3>
+        <p style="color: var(--gray-600); font-size: 0.925rem; line-height: 1.6;">
+          1-click application pipeline with cover notes, direct one-to-one messaging with store managers, and transparent stage tracking from review to completion.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Nearby Opportunities Preview -->
+  <section style="background: var(--white); border-top: 1px solid var(--gray-200); border-bottom: 1px solid var(--gray-200); padding: 4rem 1.5rem;">
+    <div class="container" style="padding: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge" style="background:#e0e7ff; color:var(--primary); font-weight:700;">Live Feed</span>
+          <h2 style="font-size: 2rem; font-weight: 800; color: var(--dark-900); margin-top: 0.25rem;">Nearby Opportunities</h2>
+          <p style="color: var(--gray-600);">Real-time part-time and weekend gigs near Hyderabad tech and college hubs.</p>
+        </div>
+        <a href="jobs.html" class="btn btn-outline">View All 50+ Opportunities →</a>
+      </div>
+
+      <div id="landing-jobs-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+        <div style="text-align: center; padding: 3rem; color: var(--gray-500); grid-column: 1 / -1;">
+          Loading nearby opportunities...
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dedicated AI Recommendation Highlight Section -->
+  <section class="container" style="padding: 5rem 1.5rem;">
+    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: var(--white); border-radius: 24px; padding: 3.5rem; position: relative; overflow: hidden; box-shadow: var(--shadow-xl);">
+      <div style="max-width: 680px; position: relative; z-index: 2;">
+        <span class="badge" style="background:rgba(255,255,255,0.15); color:#a5b4fc; margin-bottom: 1rem;">Core Innovation</span>
+        <h2 style="font-size: 2.4rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem;">
+          Explainable AI: Never wonder why a job was recommended.
+        </h2>
+        <p style="font-size: 1.05rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 2rem;">
+          Unlike opaque black-box algorithms, our hybrid recommendation engine breaks down every score into Content (40%), Location (25%), Availability (15%), Collaborative Behavior (10%), and Expected Pay (10%).
+        </p>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="ai_demo.html" class="btn btn-primary btn-lg" style="background: #6366f1;">🔬 Explore AI Algorithm Architecture</a>
+          <a href="login.html" class="btn btn-secondary btn-lg" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #fff;">Sign In to Explore Gigs</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="container" style="padding-bottom: 5rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
+      <!-- For Students -->
+      <div class="card" style="padding: 2.5rem; border-top: 4px solid var(--primary);">
+        <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--dark-900); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🎓</span> For Students
+        </h3>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.85rem; color: var(--dark-700);">
+          <li style="display: flex; gap: 0.5rem;"><span>✓</span> <strong>Match around lecture timings:</strong> Set morning/evening availability and weekend windows.</li>
+          <li style="display: flex; gap: 0.5rem;"><span>✓</span> <strong>Zero commute hassle:</strong> Guaranteed distance filtering under your maximum travel radius.</li>
+          <li style="display: flex; gap: 0.5rem;"><span>✓</span> <strong>Real earnings:</strong> Fair compensation from ₹150–₹300/hr or ₹500–₹1200/day.</li>
+          <li style="display: flex; gap: 0.5rem;"><span>✓</span> <strong>Resume building:</strong> Gain verified work experience and employer recommendations.</li>
+        </ul>
+      </div>
+
+      <!-- For Businesses -->
+      <div class="card" style="padding: 2.5rem; border-top: 4px solid #059669;">
+        <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--dark-900); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🏪</span> For Local Businesses
+        </h3>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.85rem; color: var(--dark-700);">
+          <li style="display: flex; gap: 0.5rem;"><span>✓</span> <strong>Solve urgent staffing shortages:</strong> Reach energetic college talent within minutes.</li>
+          <li style="display: flex; gap: 0.5rem;"><span>✓</span> <strong>Pre-matched skill sets:</strong> See applicant match percentages and skill overlap upfront.</li>
+          <li style="display: flex; gap: 0.5rem;"><span>✓</span> <strong>Flexible short-term hiring:</strong> Weekend rush, promotional events, or tech assistance.</li>
+          <li style="display: flex; gap: 0.5rem;"><span>✓</span> <strong>Direct in-app communication:</strong> Coordinate shifts directly through built-in chat.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Job Categories -->
+  <section style="background: var(--white); border-top: 1px solid var(--gray-200); padding: 4rem 1.5rem;">
+    <div class="container" style="padding: 0;">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 3rem;">
+        <h2 style="font-size: 2rem; font-weight: 800; color: var(--dark-900);">Popular Job Categories</h2>
+        <p style="color: var(--gray-600); margin-top: 0.25rem;">Explore high-demand part-time roles suited for student schedules.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+        <a href="jobs.html?category=Tech+%26+IT" class="card card-hover" style="padding: 1.5rem; text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">💻</div>
+          <div style="font-weight: 700; color: var(--dark-900);">Tech & IT</div>
+          <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;">12 Open Roles</div>
+        </a>
+        <a href="jobs.html?category=Hospitality+%26+Food" class="card card-hover" style="padding: 1.5rem; text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">☕</div>
+          <div style="font-weight: 700; color: var(--dark-900);">Hospitality & Food</div>
+          <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;">9 Open Roles</div>
+        </a>
+        <a href="jobs.html?category=Tutoring+%26+Education" class="card card-hover" style="padding: 1.5rem; text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
+          <div style="font-weight: 700; color: var(--dark-900);">Tutoring & Mentorship</div>
+          <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;">8 Open Roles</div>
+        </a>
+        <a href="jobs.html?category=Design+%26+Creative" class="card card-hover" style="padding: 1.5rem; text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎨</div>
+          <div style="font-weight: 700; color: var(--dark-900);">Design & Media</div>
+          <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;">10 Open Roles</div>
+        </a>
+        <a href="jobs.html?category=Marketing+%26+Events" class="card card-hover" style="padding: 1.5rem; text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎉</div>
+          <div style="font-weight: 700; color: var(--dark-900);">Events & Marketing</div>
+          <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;">7 Open Roles</div>
+        </a>
+        <a href="jobs.html?category=Retail+%26+Sales" class="card card-hover" style="padding: 1.5rem; text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛍️</div>
+          <div style="font-weight: 700; color: var(--dark-900);">Retail & Sales</div>
+          <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;">6 Open Roles</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="container" style="padding: 5rem 1.5rem;">
+    <div style="text-align: center; max-width: 600px; margin: 0 auto 3rem;">
+      <h2 style="font-size: 2rem; font-weight: 800; color: var(--dark-900);">Student & Business Stories</h2>
+      <p style="color: var(--gray-600); margin-top: 0.25rem;">Trusted across campus communities and neighborhood enterprises.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+      <div class="card" style="padding: 1.75rem;">
+        <div style="color: #f59e0b; margin-bottom: 0.75rem;">★★★★★</div>
+        <p style="color: var(--dark-700); font-size: 0.95rem; font-style: italic; line-height: 1.6;">
+          "I found a weekend barista job at Brew & Bean just 800 meters from my hostel. The AI match broke down exactly how my free Saturdays matched their shifts!"
+        </p>
+        <div style="margin-top: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg,#1e40af,#3b82f6); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1rem; flex-shrink: 0;">R</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem;">Rohan Verma</div>
+            <div style="font-size: 0.8rem; color: var(--gray-500);">B.Com Student, IIIT Vicinity</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 1.75rem;">
+        <div style="color: #f59e0b; margin-bottom: 0.75rem;">★★★★★</div>
+        <p style="color: var(--dark-700); font-size: 0.95rem; font-style: italic; line-height: 1.6;">
+          "Whenever we organize corporate hackathons, we need reliable students for sound and stage logistics. HyperLocal Job Match provided 4 students in 3 hours."
+        </p>
+        <div style="margin-top: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg,#065f46,#10b981); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1rem; flex-shrink: 0;">V</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem;">Vikram Singhania</div>
+            <div style="font-size: 0.8rem; color: var(--gray-500);">Director, Apex Experiential</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 1.75rem;">
+        <div style="color: #f59e0b; margin-bottom: 0.75rem;">★★★★★</div>
+        <p style="color: var(--dark-700); font-size: 0.95rem; font-style: italic; line-height: 1.6;">
+          "The collaborative filtering showed me tech writing gigs that other CS students applied to. I earned ₹14,000 last month during my free weekday evenings."
+        </p>
+        <div style="margin-top: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg,#7c3aed,#a78bfa); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1rem; flex-shrink: 0;">A</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem;">Aarav Sharma</div>
+            <div style="font-size: 0.8rem; color: var(--gray-500);">B.Tech Computer Science</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="background: var(--dark-900); color: var(--gray-400); padding: 4rem 1.5rem 2rem; border-top: 1px solid var(--dark-800);">
+    <div class="container" style="padding: 0; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2.5rem; margin-bottom: 3rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--white); font-weight: 800; font-size: 1.2rem; margin-bottom: 0.75rem;">
+          <span style="color: var(--primary);">⚡</span> HyperLocal Job Match
+        </div>
+        <p style="font-size: 0.9rem; line-height: 1.6; max-width: 320px;">
+          AI-Powered Hyperlocal Job Recommendation and Matching Platform for Students. Combining Content-Based Filtering, Haversine Distance Awareness, and Collaborative Peer Interactions.
+        </p>
+      </div>
+      <div>
+        <h4 style="color: var(--white); font-weight: 700; margin-bottom: 1rem; font-size: 0.95rem;">Platform</h4>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <li><a href="jobs.html" style="color: inherit;">Search Nearby Jobs</a></li>
+          <li><a href="ai_demo.html" style="color: inherit;">AI Recommendation Architecture</a></li>
+          <li><a href="login.html" style="color: inherit;">Sign In to Account</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color: var(--white); font-weight: 700; margin-bottom: 1rem; font-size: 0.95rem;">User Roles</h4>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+          <li><a href="register.html?role=student" style="color: inherit;">Student Registration</a></li>
+          <li><a href="register.html?role=employer" style="color: inherit;">Business Registration</a></li>
+          <li><a href="admin.html" style="color: inherit;">Admin Analytics</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color: var(--white); font-weight: 700; margin-bottom: 1rem; font-size: 0.95rem;">Major Project</h4>
+        <p style="font-size: 0.825rem; line-height: 1.6;">
+          CSE Final Year Capstone Project. Artificial Intelligence & Machine Learning Track.
+        </p>
+      </div>
+    </div>
+    <div style="border-top: 1px solid var(--dark-800); padding-top: 1.5rem; text-align: center; font-size: 0.8rem;">
+      © 2026 HyperLocal Job Match. AI-Powered Job Discovery Platform for Students.
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      setupNavbar('home');
+
+      // Fetch featured jobs for landing preview
+      try {
+        const data = await apiRequest('/jobs?lat=17.4483&lon=78.3915');
+        const container = document.getElementById('landing-jobs-grid');
+        if (data && data.jobs && data.jobs.length > 0) {
+          container.innerHTML = data.jobs.slice(0, 6).map(j => `
+            <div class="job-card">
+              <div class="job-card-header">
+                <div>
+                  <h3 class="job-title">${j.title}</h3>
+                  <div class="job-company">🏢 ${j.company_name}</div>
+                </div>
+                <span class="badge" style="background:var(--primary-light); color:var(--primary); font-weight:700;">${j.category}</span>
+              </div>
+              
+              <div class="job-meta-row">
+                <div class="meta-item distance">📍 ${j.formatted_distance || 'Nearby'}</div>
+                <div class="meta-item pay">₹${j.pay_amount}/${j.pay_frequency}</div>
+                <div class="meta-item">⏱️ ${j.job_type}</div>
+              </div>
+
+              <p style="font-size: 0.85rem; color: var(--gray-600); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                ${j.description}
+              </p>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                ${(j.skills || []).slice(0, 3).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+              </div>
+
+              <div style="display: flex; gap: 0.75rem; margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--gray-100);">
+                <a href="job_details.html?id=${j.id}" class="btn btn-primary btn-sm" style="flex: 1;">View & Match</a>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

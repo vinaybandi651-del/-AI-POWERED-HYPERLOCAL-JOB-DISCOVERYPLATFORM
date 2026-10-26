@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile | GradMatch AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    body { background: #f0f4f8; }
+
+    .prof-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.07);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    @media(max-width:600px){ .prof-card { padding: 1.1rem; } }
+
+    .prof-section-title {
+      font-size: 1rem; font-weight: 700; color: #1e40af;
+      margin: 0 0 1.25rem; display: flex; align-items: center; gap: .5rem;
+    }
+
+    /* Avatar */
+    .avatar-wrap {
+      width: 110px; height: 110px; border-radius: 50%;
+      background: #f8fafc; border: 2px dashed #cbd5e1;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0; position: relative;
+      box-shadow: 0 2px 12px rgba(30,64,175,.1);
+    }
+    .avatar-wrap img { width:100%; height:100%; object-fit:cover; display:none; border-radius:50%; }
+    .avatar-wrap.has-photo { border-color: #3b82f6; border-style: solid; }
+    .avatar-wrap.has-photo img { display:block; }
+    .avatar-placeholder { font-size: 2.5rem; color: #94a3b8; }
+    .avatar-wrap.has-photo .avatar-placeholder { display: none; }
+
+    /* Photo buttons */
+    .photo-btn {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .32rem .8rem; border-radius: 8px;
+      font-size: .78rem; font-weight: 600; cursor: pointer;
+      border: 1.5px solid; transition: all .15s;
+    }
+    .photo-btn-change { border-color: #3b82f6; color: #3b82f6; background: transparent; }
+    .photo-btn-change:hover { background: #3b82f6; color: #fff; }
+    .photo-btn-remove { border-color: #ef4444; color: #ef4444; background: transparent; }
+    .photo-btn-remove:hover { background: #ef4444; color: #fff; }
+
+    /* Grid */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+    @media(max-width:640px){ .info-grid { grid-template-columns: 1fr; } }
+
+    .info-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #64748b; margin-bottom: .25rem; }
+    .info-value { font-size: .95rem; color: #1e293b; font-weight: 500; }
+    .info-value.empty { color: #94a3b8; font-style: italic; font-weight: 400; }
+
+    /* Skill pills */
+    .skill-view { display: inline-flex; background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; border-radius: 20px; padding: .28rem .7rem; font-size: .8rem; font-weight: 600; }
+    .skill-edit { display: inline-flex; align-items: center; gap: .3rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 20px; padding: .28rem .7rem; font-size: .8rem; font-weight: 600; }
+    .skill-edit button { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1rem; line-height:1; padding: 0; }
+
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 1.25rem 0; }
+
+    /* Form */
+    .fg { display: flex; flex-direction: column; gap: .3rem; }
+    .fg label { font-size: .82rem; font-weight: 600; color: #475569; }
+
+    /* Badge */
+    .badge-verified { display: inline-flex; align-items: center; gap: .3rem; background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; border-radius: 12px; padding: .18rem .55rem; font-size: .75rem; font-weight: 700; }
+    .badge-role { display: inline-flex; background: #eff6ff; color: #1d4ed8; border-radius: 10px; padding: .18rem .65rem; font-size: .8rem; font-weight: 700; }
+
+    /* Upload progress overlay */
+    #upload-overlay {
+      display: none;
+      position: fixed; inset: 0; background: rgba(0,0,0,.35);
+      z-index: 9999; align-items: center; justify-content: center;
+    }
+    #upload-overlay.active { display: flex; }
+    .upload-box {
+      background: #fff; border-radius: 16px; padding: 2rem 2.5rem;
+      text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    }
+    .spinner {
+      width: 40px; height: 40px; border: 4px solid #e2e8f0;
+      border-top-color: #3b82f6; border-radius: 50%;
+      animation: spin .7s linear infinite; margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- Upload overlay -->
+  <div id="upload-overlay">
+    <div class="upload-box">
+      <div class="spinner"></div>
+      <div style="font-weight:700;color:#1e293b;font-size:1rem;">Uploading photo...</div>
+      <div style="color:#64748b;font-size:.85rem;margin-top:.4rem;">Please wait</div>
+    </div>
+  </div>
+
+  <nav class="navbar"><div class="nav-container"></div></nav>
+
+  <div class="container" style="max-width:860px; margin-top:2rem; margin-bottom:4rem;">
+
+    <!-- PAGE HEADER -->
+    <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+      <div style="flex:1;">
+        <h1 style="font-size:1.75rem; font-weight:800; color:#0f172a; margin:0;">My Profile</h1>
+        <p style="color:#64748b; font-size:.9rem; margin:.2rem 0 0;">View and manage your personal information, skills, and profile picture.</p>
+      </div>
+      <button id="btn-edit" onclick="showEdit()" class="btn btn-primary" style="display:none;">✏️ Edit Profile</button>
+      <button id="btn-cancel" onclick="showView()" class="btn btn-outline" style="display:none;">✕ Cancel</button>
+    </div>
+
+    <!-- AVATAR + IDENTITY CARD -->
+    <div class="prof-card" style="display:flex; align-items:flex-start; gap:1.75rem; flex-wrap:wrap;">
+      <!-- Left: avatar -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:.75rem;">
+        <div class="avatar-wrap" id="avatar-wrap">
+          <div class="avatar-placeholder">👤</div>
+          <img id="avatar-img" src="" alt="Profile picture">
+        </div>
+        <!-- Always-visible photo controls -->
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap; justify-content:center;">
+          <label class="photo-btn photo-btn-change" style="cursor:pointer;">
+            📷 Change Photo
+            <input type="file" id="avatar-input" accept=".jpg,.jpeg,.png,.webp" style="display:none" onchange="uploadPhoto(this)">
+          </label>
+          <button type="button" class="photo-btn photo-btn-remove" id="btn-remove-photo" onclick="removePhoto()" style="display:none;">✕ Remove</button>
+        </div>
+        <div style="font-size:.72rem;color:#94a3b8;text-align:center;">JPG, PNG, WEBP · max 5 MB</div>
+      </div>
+
+      <!-- Right: identity -->
+      <div style="flex:1; min-width:0;">
+        <div style="display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-bottom:.4rem;">
+          <h2 id="id-name" style="font-size:1.35rem; font-weight:800; color:#0f172a; margin:0;">Loading…</h2>
+          <span id="id-verified" class="badge-verified" style="display:none;">✓ Verified</span>
+        </div>
+        <div id="id-email" style="font-size:.9rem;color:#475569;margin-bottom:.3rem;"></div>
+        <div id="id-phone" style="font-size:.85rem;color:#64748b;margin-bottom:.5rem;"></div>
+        <div id="id-role" class="badge-role"></div>
+      </div>
+    </div>
+
+    <!-- ========= VIEW MODE ========= -->
+    <div id="view-mode" style="display:none;">
+
+      <!-- Student view -->
+      <div id="sv-student" class="prof-card" style="display:none;">
+        <p class="prof-section-title">🎓 Academic Information</p>
+        <div class="info-grid">
+          <div><div class="info-label">Degree</div><div class="info-value" id="sv-degree">—</div></div>
+          <div><div class="info-label">Specialization</div><div class="info-value" id="sv-spec">—</div></div>
+          <div><div class="info-label">College / University</div><div class="info-value" id="sv-college">—</div></div>
+          <div><div class="info-label">Graduation Year</div><div class="info-value" id="sv-grad">—</div></div>
+          <div><div class="info-label">Experience Level</div><div class="info-value" id="sv-exp">—</div></div>
+          <div><div class="info-label">Preferred Job Type</div><div class="info-value" id="sv-jobtype">—</div></div>
+          <div style="grid-column:1/-1;"><div class="info-label">Location</div><div class="info-value" id="sv-address">—</div></div>
+        </div>
+        <hr class="divider">
+        <p class="prof-section-title">📝 Bio</p>
+        <div class="info-value" id="sv-bio" style="white-space:pre-wrap;line-height:1.7;">—</div>
+        <hr class="divider">
+        <p class="prof-section-title">🎯 Target Roles</p>
+        <div class="info-value" id="sv-roles">—</div>
+        <hr class="divider">
+        <p class="prof-section-title">🛠 Skills</p>
+        <div id="sv-skills" style="display:flex;flex-wrap:wrap;gap:.5rem;min-height:24px;">
+          <span class="info-value empty">No skills added yet.</span>
+        </div>
+      </div>
+
+      <!-- Employer view -->
+      <div id="sv-employer" class="prof-card" style="display:none;">
+        <p class="prof-section-title">🏢 Company Information</p>
+        <div class="info-grid">
+          <div><div class="info-label">Company Name</div><div class="info-value" id="sv-company">—</div></div>
+          <div><div class="info-label">Business Type</div><div class="info-value" id="sv-biztype">—</div></div>
+          <div><div class="info-label">Website</div><div class="info-value" id="sv-website">—</div></div>
+          <div><div class="info-label">Address</div><div class="info-value" id="sv-empaddr">—</div></div>
+        </div>
+        <hr class="divider">
+        <p class="prof-section-title">📋 Company Description</p>
+        <div class="info-value" id="sv-desc" style="white-space:pre-wrap;line-height:1.7;">—</div>
+      </div>
+
+      <!-- Admin view -->
+      <div id="sv-admin" class="prof-card" style="display:none;">
+        <div style="text-align:center;color:#64748b;padding:1rem;font-size:.9rem;">🛡️ Administrator account — system-level access enabled.</div>
+      </div>
+
+    </div><!-- /view-mode -->
+
+
+    <!-- ========= EDIT MODE ========= -->
+    <div id="edit-mode" style="display:none;">
+      <form id="profile-form" onsubmit="saveProfile(event)">
+
+        <!-- Student edit -->
+        <div id="ef-student" class="prof-card" style="display:none;">
+          <p class="prof-section-title">👤 Basic Information</p>
+          <div class="info-grid">
+            <div class="fg">
+              <label for="ef-name">Full Name *</label>
+              <input type="text" id="ef-name" class="form-control" required>
+            </div>
+            <div class="fg">
+              <label for="ef-phone">Phone Number</label>
+              <input type="tel" id="ef-phone" class="form-control" placeholder="+91 XXXXX XXXXX">
+            </div>
+            <div class="fg" style="grid-column:1/-1;">
+              <label for="ef-address">Location / City</label>
+              <div style="display:flex;gap:.5rem;">
+                <input type="text" id="ef-address" class="form-control" placeholder="e.g. Hitec City, Hyderabad">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="getGPS()">📍</button>
+              </div>
+            </div>
+          </div>
+          <hr class="divider">
+          <p class="prof-section-title">🎓 Academic Qualification</p>
+          <div class="info-grid">
+            <div class="fg">
+              <label for="ef-degree">Degree</label>
+              <select id="ef-degree" class="form-control">
+                <option value="">— Select —</option>
+                <option value="B.Tech">B.Tech / B.E.</option>
+                <option value="BCA">BCA</option>
+                <option value="MCA">MCA</option>
+                <option value="B.Sc">B.Sc</option>
+                <option value="B.Com">B.Com</option>
+                <option value="BBA">BBA</option>
+                <option value="MBA">MBA</option>
+                <option value="Diploma">Diploma</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label for="ef-spec">Specialization</label>
+              <input type="text" id="ef-spec" class="form-control" placeholder="e.g. Computer Science">
+            </div>
+            <div class="fg">
+              <label for="ef-college">College / University</label>
+              <input type="text" id="ef-college" class="form-control" placeholder="e.g. State University">
+            </div>
+            <div class="fg">
+              <label for="ef-grad">Graduation Year</label>
+              <select id="ef-grad" class="form-control">
+                <option value="2027">2027</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label for="ef-exp">Experience Level</label>
+              <select id="ef-exp" class="form-control">
+                <option value="Fresher">Fresher (0 years)</option>
+                <option value="Entry-Level">Entry-Level (0–1 yrs)</option>
+                <option value="Experienced">Experienced (1+ yrs)</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label for="ef-jobtype">Preferred Job Type</label>
+              <select id="ef-jobtype" class="form-control">
+                <option value="Full-time">Full-time</option>
+                <option value="Internship">Internship</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Contract">Contract</option>
+              </select>
+            </div>
+          </div>
+          <hr class="divider">
+          <p class="prof-section-title">📝 Bio</p>
+          <div class="fg">
+            <label for="ef-bio">Professional Summary</label>
+            <textarea id="ef-bio" class="form-control" rows="4" placeholder="Describe your skills, education, and goals…"></textarea>
+          </div>
+          <hr class="divider">
+          <p class="prof-section-title">🎯 Target Roles</p>
+          <div class="fg">
+            <label for="ef-roles">Target Job Roles (comma-separated)</label>
+            <input type="text" id="ef-roles" class="form-control" placeholder="e.g. Software Engineer, Data Analyst">
+          </div>
+          <hr class="divider">
+          <p class="prof-section-title">🛠 Skills</p>
+          <div class="fg">
+            <label>Add a skill and press Enter or click Add:</label>
+            <div style="display:flex;gap:.5rem;">
+              <input type="text" id="skill-input" class="form-control" placeholder="e.g. Python, React, SQL">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addSkill()">+ Add</button>
+            </div>
+            <div id="skill-box" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;min-height:32px;"></div>
+          </div>
+        </div>
+
+        <!-- Employer edit -->
+        <div id="ef-employer" class="prof-card" style="display:none;">
+          <p class="prof-section-title">👤 Contact Details</p>
+          <div class="info-grid">
+            <div class="fg">
+              <label for="emp-name">Contact Person Name *</label>
+              <input type="text" id="emp-name" class="form-control" required>
+            </div>
+            <div class="fg">
+              <label for="emp-phone">Phone</label>
+              <input type="tel" id="emp-phone" class="form-control" placeholder="+91 XXXXX XXXXX">
+            </div>
+          </div>
+          <hr class="divider">
+          <p class="prof-section-title">🏢 Company Details</p>
+          <div class="info-grid">
+            <div class="fg">
+              <label for="emp-company">Company Name *</label>
+              <input type="text" id="emp-company" class="form-control" required>
+            </div>
+            <div class="fg">
+              <label for="emp-biztype">Business Type</label>
+              <select id="emp-biztype" class="form-control">
+                <option value="">— Select —</option>
+                <option value="IT Services">IT Services / Technology</option>
+                <option value="Restaurant">Restaurant / Food</option>
+                <option value="Retail">Retail / Shop</option>
+                <option value="Education">Education / Tutoring</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Logistics">Logistics</option>
+                <option value="Events">Events / Entertainment</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="NGO">NGO / Non-profit</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label for="emp-website">Website</label>
+              <input type="url" id="emp-website" class="form-control" placeholder="https://company.com">
+            </div>
+            <div class="fg">
+              <label for="emp-address">Business Address</label>
+              <input type="text" id="emp-address" class="form-control" placeholder="City, State">
+            </div>
+          </div>
+          <div class="fg" style="margin-top:1rem;">
+            <label for="emp-desc">Company Description</label>
+            <textarea id="emp-desc" class="form-control" rows="4" placeholder="What does your company do?"></textarea>
+          </div>
+        </div>
+
+        <!-- Admin edit -->
+        <div id="ef-admin" class="prof-card" style="display:none;">
+          <p class="prof-section-title">👤 Admin Details</p>
+          <div class="info-grid">
+            <div class="fg">
+              <label for="adm-name">Full Name *</label>
+              <input type="text" id="adm-name" class="form-control" required>
+            </div>
+            <div class="fg">
+              <label for="adm-phone">Phone</label>
+              <input type="tel" id="adm-phone" class="form-control">
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.5rem;">
+          <button type="submit" id="save-btn" class="btn btn-primary btn-lg" style="min-width:170px;">💾 Save Changes</button>
+          <button type="button" class="btn btn-outline btn-lg" onclick="showView()">✕ Cancel</button>
+        </div>
+
+        <input type="hidden" id="ef-lat" value="17.4483">
+        <input type="hidden" id="ef-lng" value="78.3915">
+      </form>
+    </div><!-- /edit-mode -->
+
+  </div><!-- /container -->
+
+  <script src="js/api.js"></script>
+  <script>
+    /* ────────── STATE ────────── */
+    let _user = null;      // cached user object from localStorage
+    let _profile = {};     // profile data from API
+    let _role = '';
+    let _skills = [];
+
+    /* ────────── BOOT ────────── */
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!requireAuth()) return;
+      _user = getCurrentUser();
+      setupNavbar('profile');
+      await loadProfile();
+
+      document.getElementById('skill-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); addSkill(); }
+      });
+    });
+
+    /* ────────── LOAD PROFILE ────────── */
+    async function loadProfile() {
+      try {
+        const res = await apiRequest('/users/profile');
+        if (!res || !res.user) {
+          showToast('Failed to load profile. Please refresh.', 'error');
+          return;
+        }
+
+        const u = res.user;
+        const p = res.profile || {};
+        _role    = u.role || 'student';
+        _profile = p;
+
+        // Merge latest data into cached user
+        _user = Object.assign({}, _user, u);
+        localStorage.setItem('user', JSON.stringify(_user));
+
+        // ── Identity header ──
+        document.getElementById('id-name').textContent  = u.full_name || '—';
+        document.getElementById('id-email').textContent = u.email || '';
+        document.getElementById('id-phone').textContent = u.phone ? ('📱 ' + u.phone) : '';
+
+        const roleMap = {
+          student:  '🎓 Student / Fresh Graduate',
+          employer: '🏢 Employer / Recruiter',
+          admin:    '🛡️ Administrator'
+        };
+        document.getElementById('id-role').textContent = roleMap[_role] || _role;
+
+        if (u.is_verified) {
+          document.getElementById('id-verified').style.display = 'inline-flex';
+        }
+
+        // ── Avatar ──
+        applyAvatar(u.avatar_url);
+
+        // ── View sections ──
+        hideAll(['sv-student','sv-employer','sv-admin']);
+        if (_role === 'student')  { fillStudentView(u, p); show('sv-student'); }
+        else if (_role === 'employer') { fillEmployerView(u, p); show('sv-employer'); }
+        else { show('sv-admin'); }
+
+        // Store for edit mode
+        window.__profileData = { u, p };
+
+        show('view-mode');
+        document.getElementById('btn-edit').style.display = '';
+
+      } catch (err) {
+        console.error('loadProfile error:', err);
+        showToast(err.message || 'Could not load profile.', 'error');
+      }
+    }
+
+    /* ────────── AVATAR ────────── */
+    function applyAvatar(url) {
+      const wrap   = document.getElementById('avatar-wrap');
+      const img    = document.getElementById('avatar-img');
+      const remBtn = document.getElementById('btn-remove-photo');
+
+      if (url && url.trim()) {
+        img.src = url;
+        wrap.classList.add('has-photo');
+        remBtn.style.display = 'inline-flex';
+      } else {
+        img.src = '';
+        wrap.classList.remove('has-photo');
+        remBtn.style.display = 'none';
+      }
+    }
+
+    async function uploadPhoto(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      input.value = '';
+
+      const okTypes = ['image/jpeg','image/jpg','image/png','image/webp'];
+      if (!okTypes.includes(file.type.toLowerCase())) {
+        showToast('Only JPG, PNG, or WEBP images allowed.', 'error');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Image must be smaller than 5 MB.', 'error');
+        return;
+      }
+      if (file.size === 0) {
+        showToast('Selected file is empty.', 'error');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) { showToast('Session expired. Please log in.', 'error'); return; }
+
+      // Show overlay
+      document.getElementById('upload-overlay').classList.add('active');
+
+      try {
+        const form = new FormData();
+        form.append('avatar', file);
+
+        const resp = await fetch('/api/users/avatar', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: form
+        });
+
+        let data = {};
+        try { data = await resp.json(); } catch(e) {}
+
+        if (!resp.ok) {
+          throw new Error(data.error || ('Upload failed: HTTP ' + resp.status));
+        }
+        if (!data.avatar_url) {
+          throw new Error('Server did not return avatar URL.');
+        }
+
+        applyAvatar(data.avatar_url);
+        _user.avatar_url = data.avatar_url;
+        localStorage.setItem('user', JSON.stringify(_user));
+        setupNavbar('profile');
+        showToast('Profile picture updated! 📷', 'success');
+
+      } catch (err) {
+        console.error('uploadPhoto error:', err);
+        showToast(err.message || 'Upload failed. Please try again.', 'error');
+      } finally {
+        document.getElementById('upload-overlay').classList.remove('active');
+      }
+    }
+
+    async function removePhoto() {
+      const wrap = document.getElementById('avatar-wrap');
+      if (!wrap.classList.contains('has-photo')) return;
+      if (!confirm('Remove your profile picture?')) return;
+
+      const token = localStorage.getItem('token');
+      document.getElementById('upload-overlay').classList.add('active');
+      try {
+        const resp = await fetch('/api/users/avatar', {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        let data = {};
+        try { data = await resp.json(); } catch(e) {}
+        if (!resp.ok) throw new Error(data.error || 'Remove failed');
+        applyAvatar(null);
+        _user.avatar_url = null;
+        localStorage.setItem('user', JSON.stringify(_user));
+        setupNavbar('profile');
+        showToast('Profile picture removed.', 'success');
+      } catch (err) {
+        showToast(err.message || 'Failed to remove photo.', 'error');
+      } finally {
+        document.getElementById('upload-overlay').classList.remove('active');
+      }
+    }
+
+    /* ────────── VIEW MODE FILL ────────── */
+    function fillStudentView(u, p) {
+      set('sv-degree',  p.degree);
+      set('sv-spec',    p.specialization);
+      set('sv-college', p.college_name || p.institution);
+      set('sv-grad',    p.graduation_year);
+      set('sv-exp',     p.fresher_status || p.experience_level);
+      set('sv-jobtype', p.preferred_job_type);
+      set('sv-address', p.address || u.address);
+      set('sv-bio',     p.bio);
+
+      let roles = p.preferred_roles;
+      if (Array.isArray(roles)) roles = roles.join(', ');
+      set('sv-roles', roles);
+
+      const skills = Array.isArray(p.skills) ? p.skills : [];
+      _skills = [...skills];
+      const box = document.getElementById('sv-skills');
+      box.innerHTML = skills.length
+        ? skills.map(s => '<span class="skill-view">' + esc(s) + '</span>').join('')
+        : '<span class="info-value empty">No skills added yet.</span>';
+    }
+
+    function fillEmployerView(u, p) {
+      set('sv-company', p.company_name || u.full_name);
+      set('sv-biztype', p.business_type);
+      const webEl = document.getElementById('sv-website');
+      if (p.website) {
+        webEl.innerHTML = '<a href="' + esc(p.website) + '" target="_blank" style="color:#1d4ed8;">' + esc(p.website) + '</a>';
+      } else { set('sv-website', null); }
+      set('sv-empaddr', p.address);
+      set('sv-desc',    p.description);
+    }
+
+    function set(id, val) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const s = (val !== null && val !== undefined) ? String(val).trim() : '';
+      if (s) {
+        el.textContent = s;
+        el.classList.remove('empty');
+      } else {
+        el.textContent = '—';
+        el.classList.add('empty');
+      }
+    }
+
+    /* ────────── EDIT MODE ────────── */
+    function showEdit() {
+      const data = window.__profileData;
+      if (!data) return;
+      const { u, p } = data;
+
+      hide('view-mode');
+      show('edit-mode');
+      document.getElementById('btn-edit').style.display   = 'none';
+      document.getElementById('btn-cancel').style.display = '';
+
+      hideAll(['ef-student','ef-employer','ef-admin']);
+
+      if (_role === 'student') {
+        show('ef-student');
+        val('ef-name',    u.full_name);
+        val('ef-phone',   u.phone);
+        val('ef-address', p.address);
+        val('ef-bio',     p.bio);
+        val('ef-spec',    p.specialization);
+        val('ef-college', p.college_name || p.institution);
+        val('ef-roles',   Array.isArray(p.preferred_roles) ? p.preferred_roles.join(', ') : (p.preferred_roles || ''));
+        selVal('ef-degree',  p.degree);
+        selVal('ef-grad',    p.graduation_year ? String(p.graduation_year) : '');
+        selVal('ef-exp',     p.fresher_status);
+        selVal('ef-jobtype', p.preferred_job_type);
+        _skills = Array.isArray(p.skills) ? [...p.skills] : [];
+        renderEditSkills();
+      } else if (_role === 'employer') {
+        show('ef-employer');
+        val('emp-name',    u.full_name);
+        val('emp-phone',   u.phone);
+        val('emp-company', p.company_name);
+        val('emp-website', p.website);
+        val('emp-address', p.address);
+        val('emp-desc',    p.description);
+        selVal('emp-biztype', p.business_type);
+      } else {
+        show('ef-admin');
+        val('adm-name',  u.full_name);
+        val('adm-phone', u.phone);
+      }
+    }
+
+    function showView() {
+      hide('edit-mode');
+      show('view-mode');
+      document.getElementById('btn-edit').style.display   = '';
+      document.getElementById('btn-cancel').style.display = 'none';
+    }
+
+    /* ────────── SAVE ────────── */
+    async function saveProfile(e) {
+      e.preventDefault();
+      const btn = document.getElementById('save-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      let payload = {};
+      if (_role === 'student') {
+        const rolesRaw = document.getElementById('ef-roles').value;
+        payload = {
+          full_name:          document.getElementById('ef-name').value.trim(),
+          phone:              document.getElementById('ef-phone').value.trim(),
+          address:            document.getElementById('ef-address').value.trim(),
+          bio:                document.getElementById('ef-bio').value.trim(),
+          degree:             document.getElementById('ef-degree').value,
+          specialization:     document.getElementById('ef-spec').value.trim(),
+          college_name:       document.getElementById('ef-college').value.trim(),
+          institution:        document.getElementById('ef-college').value.trim(),
+          graduation_year:    parseInt(document.getElementById('ef-grad').value) || null,
+          fresher_status:     document.getElementById('ef-exp').value,
+          preferred_job_type: document.getElementById('ef-jobtype').value,
+          preferred_roles:    rolesRaw ? rolesRaw.split(',').map(s => s.trim()).filter(Boolean) : [],
+          skills:             _skills,
+          latitude:           parseFloat(document.getElementById('ef-lat').value) || 17.4483,
+          longitude:          parseFloat(document.getElementById('ef-lng').value) || 78.3915
+        };
+      } else if (_role === 'employer') {
+        payload = {
+          full_name:    document.getElementById('emp-name').value.trim(),
+          phone:        document.getElementById('emp-phone').value.trim(),
+          company_name: document.getElementById('emp-company').value.trim(),
+          business_type:document.getElementById('emp-biztype').value,
+          website:      document.getElementById('emp-website').value.trim(),
+          address:      document.getElementById('emp-address').value.trim(),
+          description:  document.getElementById('emp-desc').value.trim()
+        };
+      } else {
+        payload = {
+          full_name: document.getElementById('adm-name').value.trim(),
+          phone:     document.getElementById('adm-phone').value.trim()
+        };
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        const resp = await fetch('/api/users/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(payload)
+        });
+
+        let data = {};
+        try { data = await resp.json(); } catch(e) {}
+
+        if (!resp.ok) {
+          throw new Error(data.error || ('Save failed: HTTP ' + resp.status));
+        }
+
+        showToast('Profile saved successfully! ✅', 'success');
+        _user.full_name = payload.full_name;
+        localStorage.setItem('user', JSON.stringify(_user));
+
+        // Reload profile and go back to view mode
+        await loadProfile();
+        showView();
+
+      } catch (err) {
+        console.error('saveProfile error:', err);
+        showToast(err.message || 'Failed to save. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Changes';
+      }
+    }
+
+    /* ────────── SKILLS ────────── */
+    function renderEditSkills() {
+      const box = document.getElementById('skill-box');
+      if (!box) return;
+      if (_skills.length === 0) {
+        box.innerHTML = '<span class="info-value empty">No skills yet — add one above.</span>';
+        return;
+      }
+      box.innerHTML = _skills.map((sk, i) =>
+        '<span class="skill-edit">' + esc(sk) +
+        '<button type="button" onclick="removeSkill(' + i + ')" title="Remove">×</button>' +
+        '</span>'
+      ).join('');
+    }
+
+    function addSkill() {
+      const inp = document.getElementById('skill-input');
+      const v   = inp.value.trim();
+      if (!v) return;
+      if (_skills.indexOf(v) !== -1) {
+        showToast('"' + v + '" is already in your skills.', 'info');
+        inp.value = '';
+        return;
+      }
+      _skills.push(v);
+      inp.value = '';
+      renderEditSkills();
+    }
+
+    function removeSkill(i) {
+      _skills.splice(i, 1);
+      renderEditSkills();
+    }
+
+    /* ────────── GPS ────────── */
+    function getGPS() {
+      if (!navigator.geolocation) { showToast('Geolocation not supported.', 'error'); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          document.getElementById('ef-lat').value     = pos.coords.latitude;
+          document.getElementById('ef-lng').value     = pos.coords.longitude;
+          document.getElementById('ef-address').value = 'GPS Location';
+          showToast('GPS captured! 📍', 'success');
+        },
+        () => showToast('GPS access denied.', 'error')
+      );
+    }
+
+    /* ────────── HELPERS ────────── */
+    function show(id) { const e = document.getElementById(id); if (e) e.style.display = 'block'; }
+    function hide(id) { const e = document.getElementById(id); if (e) e.style.display = 'none'; }
+    function hideAll(ids) { ids.forEach(hide); }
+    function val(id, v) { const e = document.getElementById(id); if (e) e.value = (v != null ? String(v) : ''); }
+    function selVal(id, v) {
+      const e = document.getElementById(id);
+      if (!e || v == null) return;
+      const s = String(v);
+      for (let i = 0; i < e.options.length; i++) {
+        if (e.options[i].value === s) { e.selectedIndex = i; break; }
+      }
+    }
+    function esc(s) {
+      const d = document.createElement('div');
+      d.appendChild(document.createTextNode(s));
+      return d.innerHTML;
+    }
+  </script>
+</body>
+</html>

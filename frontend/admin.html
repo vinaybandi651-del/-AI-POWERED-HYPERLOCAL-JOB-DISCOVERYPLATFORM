@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard & Analytics | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <!-- Chart.js for Interactive Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="background: #f8fafc;">
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container" style="max-width: 1280px; margin-top: 1.5rem; margin-bottom: 3rem;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--dark-900);">Admin Control & Analytics Center</h1>
+        <p style="color: var(--gray-500); font-size: 0.95rem; margin-top: 0.2rem;">
+          Platform metrics, AI recommendation weight tuning, user management, and job moderation.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <a href="ai_demo.html" class="btn btn-primary btn-sm">🔬 Open AI Simulator</a>
+      </div>
+    </div>
+
+    <!-- Overview Metric KPI Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+      <div class="card" style="padding: 1.25rem;">
+        <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 700; text-transform: uppercase;">Total Users</span>
+        <div id="stat-users" style="font-size: 1.8rem; font-weight: 800; color: var(--dark-900); margin-top: 0.2rem;">--</div>
+      </div>
+      <div class="card" style="padding: 1.25rem;">
+        <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 700; text-transform: uppercase;">Students</span>
+        <div id="stat-students" style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem;">--</div>
+      </div>
+      <div class="card" style="padding: 1.25rem;">
+        <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 700; text-transform: uppercase;">Employers</span>
+        <div id="stat-employers" style="font-size: 1.8rem; font-weight: 800; color: #0284c7; margin-top: 0.2rem;">--</div>
+      </div>
+      <div class="card" style="padding: 1.25rem;">
+        <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 700; text-transform: uppercase;">Active Jobs</span>
+        <div id="stat-active-jobs" style="font-size: 1.8rem; font-weight: 800; color: #059669; margin-top: 0.2rem;">--</div>
+      </div>
+      <div class="card" style="padding: 1.25rem;">
+        <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 700; text-transform: uppercase;">Applications</span>
+        <div id="stat-apps" style="font-size: 1.8rem; font-weight: 800; color: #7c3aed; margin-top: 0.2rem;">--</div>
+      </div>
+      <div class="card" style="padding: 1.25rem;">
+        <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 700; text-transform: uppercase;">Match Success Rate</span>
+        <div id="stat-rate" style="font-size: 1.8rem; font-weight: 800; color: #ea580c; margin-top: 0.2rem;">--%</div>
+      </div>
+    </div>
+
+    <!-- AI Weight Tuning Panel -->
+    <div class="card" style="padding: 2rem; margin-bottom: 2rem; border-left: 5px solid var(--primary);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--dark-900);">
+            ⚙️ AI Recommendation Engine - Configurable Model Weights
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--gray-500);">
+            Adjust the production weights for the hybrid recommendation formula in real-time.
+          </p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="saveWeights()">Save & Apply Weights Globally</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.25rem;">
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+            <span>Content & Skills</span>
+            <span id="label-cw" style="color:var(--primary);">40%</span>
+          </div>
+          <input type="range" id="slider-cw" min="0" max="100" value="40" style="width:100%; accent-color:var(--primary);" oninput="updateWeightDisplays()">
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+            <span>Location Proximity</span>
+            <span id="label-lw" style="color:#059669;">25%</span>
+          </div>
+          <input type="range" id="slider-lw" min="0" max="100" value="25" style="width:100%; accent-color:#059669;" oninput="updateWeightDisplays()">
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+            <span>Schedule / Availability</span>
+            <span id="label-aw" style="color:#0284c7;">15%</span>
+          </div>
+          <input type="range" id="slider-aw" min="0" max="100" value="15" style="width:100%; accent-color:#0284c7;" oninput="updateWeightDisplays()">
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+            <span>Collaborative Peer History</span>
+            <span id="label-cfw" style="color:#7c3aed;">10%</span>
+          </div>
+          <input type="range" id="slider-cfw" min="0" max="100" value="10" style="width:100%; accent-color:#7c3aed;" oninput="updateWeightDisplays()">
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+            <span>Target Salary Match</span>
+            <span id="label-sw" style="color:#ea580c;">10%</span>
+          </div>
+          <input type="range" id="slider-sw" min="0" max="100" value="10" style="width:100%; accent-color:#ea580c;" oninput="updateWeightDisplays()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Charts Section -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+      
+      <!-- Chart 1: Categories -->
+      <div class="card" style="padding: 1.75rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Job Categories Distribution</h3>
+        <div style="height: 260px; position: relative;">
+          <canvas id="categoriesChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Application Pipeline Funnel -->
+      <div class="card" style="padding: 1.75rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Application Conversion Pipeline</h3>
+        <div style="height: 260px; position: relative;">
+          <canvas id="funnelChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- User Management & Moderation Section -->
+    <div class="card" style="padding: 1.75rem; margin-bottom: 2rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem;">Platform Users Management</h3>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--gray-200); text-align: left; color: var(--gray-500);">
+              <th style="padding: 0.75rem;">User</th>
+              <th style="padding: 0.75rem;">Role</th>
+              <th style="padding: 0.75rem;">Affiliation</th>
+              <th style="padding: 0.75rem;">Joined</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body">
+            <tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--gray-400);">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Job Moderation -->
+    <div class="card" style="padding: 1.75rem; margin-bottom: 2rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem;">Active Jobs Moderation</h3>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--gray-200); text-align: left; color: var(--gray-500);">
+              <th style="padding: 0.75rem;">Title</th>
+              <th style="padding: 0.75rem;">Company</th>
+              <th style="padding: 0.75rem;">Category</th>
+              <th style="padding: 0.75rem;">Pay</th>
+              <th style="padding: 0.75rem;">Status</th>
+              <th style="padding: 0.75rem;">Applicants</th>
+              <th style="padding: 0.75rem; text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="jobs-table-body">
+            <tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--gray-400);">Loading jobs...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Email Delivery & Gmail SMTP Configuration -->
+    <div class="card" style="padding: 1.75rem; margin-bottom: 2rem; border-top: 4px solid var(--primary);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--dark-900); margin: 0;">📧 Gmail SMTP & Application Notifications</h3>
+            <span id="smtp-status-badge" class="badge" style="background: #fef08a; color: #854d0e; font-weight: 700;">Checking...</span>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--gray-600); margin-top: 0.3rem;">
+            Real job applications dispatch notification emails with <strong>Accept</strong> and <strong>Reject</strong> buttons to <strong>vinaybandi651@gmail.com</strong>.
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-primary btn-sm" onclick="sendTestEmail()">🚀 Send Live Test Email</button>
+          <button class="btn btn-outline btn-sm" onclick="loadEmailLogs()">📋 Refresh Logs</button>
+        </div>
+      </div>
+
+      <!-- Password Setup Box -->
+      <div style="background: #f8fafc; border: 1px solid var(--gray-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; align-items: end;">
+          <div>
+            <label style="font-size: 0.82rem; font-weight: 700; color: var(--gray-700); display: block; margin-bottom: 0.35rem;">
+              Admin Notification Recipient
+            </label>
+            <input type="text" id="admin-email-display" class="form-control" value="vinaybandi651@gmail.com" readonly style="background: #f1f5f9; font-size: 0.88rem;">
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <label style="font-size: 0.82rem; font-weight: 700; color: var(--gray-700);">
+                Google App Password (16 characters)
+              </label>
+              <a href="https://myaccount.google.com/apppasswords" target="_blank" style="font-size: 0.75rem; color: var(--primary); text-decoration: underline;">
+                🔑 Generate in Google Account
+              </a>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="password" id="input-smtp-password" class="form-control" placeholder="e.g. abcd efgh ijkl mnop" style="font-size: 0.88rem;">
+              <button class="btn btn-primary btn-sm" onclick="saveSmtpPassword()" style="white-space: nowrap;">Save & Connect</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="smtp-helper-text" style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.75rem; line-height: 1.4;">
+          <strong>Quick Setup:</strong> Enable 2-Step Verification on your Google Account → go to <a href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords</a> → create app name "GradMatch" → paste the 16-character code above and click Save.
+        </div>
+      </div>
+
+      <!-- Recent Email Logs -->
+      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--dark-800);">Recent Email Delivery Activity</h4>
+      <div style="overflow-x: auto; max-height: 240px; overflow-y: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--gray-200); text-align: left; color: var(--gray-500); background: #f8fafc; position: sticky; top: 0;">
+              <th style="padding: 0.5rem 0.75rem;">Recipient</th>
+              <th style="padding: 0.5rem 0.75rem;">Subject</th>
+              <th style="padding: 0.5rem 0.75rem;">Status</th>
+              <th style="padding: 0.5rem 0.75rem;">Date & Time</th>
+              <th style="padding: 0.5rem 0.75rem;">Details</th>
+              <th style="padding: 0.5rem 0.75rem; text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="email-logs-table-body">
+            <tr><td colspan="6" style="text-align: center; padding: 1.5rem; color: var(--gray-400);">Loading email delivery history...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Application Review & Direct Approval -->
+    <div class="card" style="padding: 1.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h3 style="font-size: 1.15rem; font-weight: 700;">Job Applications & Approval Workflow</h3>
+          <p style="font-size: 0.85rem; color: var(--gray-500); margin-top: 0.2rem;">
+            Review incoming graduate applications. Applications remain <strong>Pending</strong> until an admin or employer accepts or rejects them.
+          </p>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="loadAdminApplications()">🔄 Refresh Applications</button>
+      </div>
+
+      <!-- Search & Status Filter Controls -->
+      <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; background: #f8fafc; padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+        <input type="text" id="admin-app-search" class="form-control" placeholder="🔍 Search applicant name, email, or job..." style="max-width: 320px; font-size: 0.85rem;" oninput="filterAdminApplications()">
+        <select id="admin-app-status-filter" class="form-control" style="max-width: 180px; font-size: 0.85rem;" onchange="filterAdminApplications()">
+          <option value="all">All Statuses</option>
+          <option value="pending" selected>Pending Review ⏳</option>
+          <option value="accepted">Accepted 🎉</option>
+          <option value="rejected">Rejected ✕</option>
+          <option value="under_review">Under Review</option>
+        </select>
+        <span id="admin-app-count" style="font-size: 0.82rem; color: var(--gray-500); font-weight: 600; margin-left: auto;"></span>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--gray-200); text-align: left; color: var(--gray-500);">
+              <th style="padding: 0.75rem;">Candidate</th>
+              <th style="padding: 0.75rem;">Target Job & Company</th>
+              <th style="padding: 0.75rem;">Degree & Institution</th>
+              <th style="padding: 0.75rem;">Reference Code</th>
+              <th style="padding: 0.75rem;">Status</th>
+              <th style="padding: 0.75rem; text-align: right;">Review Decision</th>
+            </tr>
+          </thead>
+          <tbody id="apps-table-body">
+            <tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--gray-400);">Loading applications...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!requireAuth(['admin'])) return;
+      setupNavbar('admin');
+
+      await loadOverview();
+      await loadWeights();
+      await loadAnalytics();
+      await loadUsers();
+      await loadJobs();
+      await loadAdminApplications();
+      await loadEmailConfig();
+      await loadEmailLogs();
+    });
+
+    async function loadOverview() {
+      try {
+        const res = await apiRequest('/admin/overview');
+        if (res) {
+          document.getElementById('stat-users').innerText = res.total_users;
+          document.getElementById('stat-students').innerText = res.total_students;
+          document.getElementById('stat-employers').innerText = res.total_employers;
+          document.getElementById('stat-active-jobs').innerText = res.active_jobs;
+          document.getElementById('stat-apps').innerText = res.total_applications;
+          document.getElementById('stat-rate').innerText = `${res.match_success_rate}%`;
+        }
+      } catch (e) {}
+    }
+
+    async function loadWeights() {
+      try {
+        const res = await apiRequest('/admin/weights');
+        if (res && res.weights) {
+          const w = res.weights;
+          document.getElementById('slider-cw').value = Math.round(w.content_weight * 100);
+          document.getElementById('slider-lw').value = Math.round(w.location_weight * 100);
+          document.getElementById('slider-aw').value = Math.round(w.availability_weight * 100);
+          document.getElementById('slider-cfw').value = Math.round(w.collaborative_weight * 100);
+          document.getElementById('slider-sw').value = Math.round(w.salary_weight * 100);
+          updateWeightDisplays();
+        }
+      } catch (e) {}
+    }
+
+    function updateWeightDisplays() {
+      document.getElementById('label-cw').innerText = `${document.getElementById('slider-cw').value}%`;
+      document.getElementById('label-lw').innerText = `${document.getElementById('slider-lw').value}%`;
+      document.getElementById('label-aw').innerText = `${document.getElementById('slider-aw').value}%`;
+      document.getElementById('label-cfw').innerText = `${document.getElementById('slider-cfw').value}%`;
+      document.getElementById('label-sw').innerText = `${document.getElementById('slider-sw').value}%`;
+    }
+
+    async function saveWeights() {
+      const cw = parseFloat(document.getElementById('slider-cw').value) / 100;
+      const lw = parseFloat(document.getElementById('slider-lw').value) / 100;
+      const aw = parseFloat(document.getElementById('slider-aw').value) / 100;
+      const cfw = parseFloat(document.getElementById('slider-cfw').value) / 100;
+      const sw = parseFloat(document.getElementById('slider-sw').value) / 100;
+
+      try {
+        const res = await apiRequest('/admin/weights', {
+          method: 'PUT',
+          body: JSON.stringify({
+            content_weight: cw,
+            location_weight: lw,
+            availability_weight: aw,
+            collaborative_weight: cfw,
+            salary_weight: sw
+          })
+        });
+        if (res) showToast('AI recommendation model weights saved! ⚡', 'success');
+      } catch (e) {}
+    }
+
+    async function loadAnalytics() {
+      try {
+        const res = await apiRequest('/admin/analytics');
+        if (res) {
+          // Categories Doughnut Chart
+          const catLabels = (res.categories || []).map(c => c.category);
+          const catCounts = (res.categories || []).map(c => c.count);
+
+          new Chart(document.getElementById('categoriesChart'), {
+            type: 'doughnut',
+            data: {
+              labels: catLabels,
+              datasets: [{
+                data: catCounts,
+                backgroundColor: ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b']
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
+            }
+          });
+
+          // Application Funnel Bar Chart
+          const funnelLabels = (res.application_funnel || []).map(f => f.status.toUpperCase().replace('_', ' '));
+          const funnelCounts = (res.application_funnel || []).map(f => f.count);
+
+          new Chart(document.getElementById('funnelChart'), {
+            type: 'bar',
+            data: {
+              labels: funnelLabels,
+              datasets: [{
+                label: 'Applications',
+                data: funnelCounts,
+                backgroundColor: '#6366f1',
+                borderRadius: 6
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } }
+            }
+          });
+        }
+      } catch (e) {}
+    }
+
+    async function loadUsers() {
+      try {
+        const res = await apiRequest('/admin/users');
+        if (res && res.users) {
+          document.getElementById('users-table-body').innerHTML = res.users.map(u => `
+            <tr style="border-bottom: 1px solid var(--gray-200);">
+              <td style="padding: 0.75rem; display:flex; align-items:center; gap:0.5rem;">
+                ${u.avatar_url ? `<img src="${u.avatar_url}" style="width:28px; height:28px; border-radius:50%; object-fit:cover;">` : `<div style="width:28px; height:28px; border-radius:50%; border:1px dashed var(--gray-300); background:#f8fafc; flex-shrink:0;"></div>`}
+                <div>
+                  <strong>${u.full_name}</strong>
+                  <div style="color:var(--gray-500); font-size:0.75rem;">${u.email}</div>
+                </div>
+              </td>
+              <td style="padding: 0.75rem;">
+                <span class="badge" style="background:#f1f5f9; color:var(--dark-800);">${u.role.toUpperCase()}</span>
+              </td>
+              <td style="padding: 0.75rem; color:var(--gray-600);">${u.organization || u.details || '-'}</td>
+              <td style="padding: 0.75rem; color:var(--gray-400);">${new Date(u.created_at).toLocaleDateString()}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {}
+    }
+
+    async function loadJobs() {
+      try {
+        const res = await apiRequest('/admin/jobs');
+        if (res && res.jobs) {
+          document.getElementById('jobs-table-body').innerHTML = res.jobs.map(j => {
+            const isActive = j.status === 'active';
+            return `
+              <tr style="border-bottom: 1px solid var(--gray-200);">
+                <td style="padding: 0.75rem;"><strong>${j.title}</strong></td>
+                <td style="padding: 0.75rem; color:var(--gray-600);">🏢 ${j.company_name}</td>
+                <td style="padding: 0.75rem;"><span class="badge" style="background:#e0e7ff; color:var(--primary); font-weight:700;">${j.category}</span></td>
+                <td style="padding: 0.75rem; color:#047857; font-weight:700;">₹${Number(j.pay_amount).toLocaleString('en-IN')}/${j.pay_frequency}</td>
+                <td style="padding: 0.75rem;">
+                  <span class="badge ${isActive ? 'status-accepted' : 'status-pending'}" style="font-weight:700;">
+                    ${(j.status || 'active').toUpperCase()}
+                  </span>
+                </td>
+                <td style="padding: 0.75rem; font-weight:600;">${j.applicant_count || 0}</td>
+                <td style="padding: 0.75rem; text-align: right;">
+                  <div style="display:flex; justify-content:flex-end; gap:0.4rem;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleJobStatusAdmin(${j.id}, '${j.status || 'active'}')">
+                      ${isActive ? '⏸ Deactivate' : '▶ Publish / Activate'}
+                    </button>
+                    <button class="btn btn-secondary btn-sm" style="color:var(--danger);" onclick="deleteJobAdmin(${j.id})">
+                      ✕ Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+      } catch (e) {}
+    }
+
+    async function toggleJobStatusAdmin(jobId, currentStatus) {
+      const nextStatus = currentStatus === 'active' ? 'deactivated' : 'active';
+      try {
+        const res = await apiRequest(`/jobs/${jobId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: nextStatus })
+        });
+        if (res) {
+          showToast(`Job status updated to ${nextStatus.toUpperCase()}`, 'success');
+          await loadJobs();
+          await loadOverview();
+        }
+      } catch (e) {}
+    }
+
+    async function deleteJobAdmin(jobId) {
+      if (!confirm('Are you sure you want to remove this job opportunity?')) return;
+      try {
+        const res = await apiRequest(`/admin/jobs/${jobId}`, { method: 'DELETE' });
+        if (res) {
+          showToast(res.message, 'success');
+          await loadJobs();
+          await loadOverview();
+        }
+      } catch (e) {}
+    }
+
+    let allAdminApplications = [];
+
+    async function loadAdminApplications() {
+      try {
+        const res = await apiRequest('/admin/applications');
+        if (res && res.applications) {
+          allAdminApplications = res.applications;
+          filterAdminApplications();
+        }
+      } catch (e) {
+        document.getElementById('apps-table-body').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--danger);">Error loading applications.</td></tr>`;
+      }
+    }
+
+    function filterAdminApplications() {
+      const tbody = document.getElementById('apps-table-body');
+      const search = (document.getElementById('admin-app-search').value || '').trim().toLowerCase();
+      const statusFilter = document.getElementById('admin-app-status-filter').value;
+
+      let filtered = allAdminApplications;
+      if (statusFilter !== 'all') {
+        filtered = filtered.filter(a => a.status === statusFilter);
+      }
+
+      if (search) {
+        filtered = filtered.filter(a =>
+          (a.student_name || '').toLowerCase().includes(search) ||
+          (a.student_email || '').toLowerCase().includes(search) ||
+          (a.job_title || '').toLowerCase().includes(search) ||
+          (a.company_name || '').toLowerCase().includes(search) ||
+          (a.reference_code || '').toLowerCase().includes(search)
+        );
+      }
+
+      const countBadge = document.getElementById('admin-app-count');
+      if (countBadge) {
+        countBadge.innerText = `Showing ${filtered.length} of ${allAdminApplications.length} applications`;
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2.5rem; color:var(--gray-500);">No applications found matching the selected filters.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(a => {
+        const resumeUrl = a.resume_url || a.profile_resume_url;
+        let resumeBtn = '';
+        if (resumeUrl) {
+          const cleanUrl = resumeUrl.startsWith('http') ? resumeUrl : `/api${resumeUrl.startsWith('/') ? '' : '/'}${resumeUrl}`;
+          resumeBtn = `<br><a href="${cleanUrl}" target="_blank" style="font-size:0.75rem; color:var(--primary); text-decoration:underline;">📄 View Resume</a>`;
+        }
+
+        const isDecided = ['accepted', 'rejected', 'completed'].includes(a.status);
+        let actionHtml = '';
+
+        if (!isDecided) {
+          actionHtml = `
+            <div style="display:flex; justify-content:flex-end; gap:0.4rem; flex-wrap:wrap;">
+              <button class="btn btn-sm" style="background:#0284c7; color:#fff; font-weight:700; padding:0.35rem 0.6rem; font-size:0.75rem;" onclick="resendEmail(${a.application_id})" title="Send/Resend review email to vinaybandi651@gmail.com">
+                📧 Email
+              </button>
+              <button class="btn btn-sm" style="background:#059669; color:#fff; font-weight:700; padding:0.35rem 0.75rem;" onclick="updateAdminAppStatus(${a.application_id}, 'accepted')">
+                Accept ✓
+              </button>
+              <button class="btn btn-sm" style="background:#dc2626; color:#fff; font-weight:700; padding:0.35rem 0.75rem;" onclick="updateAdminAppStatus(${a.application_id}, 'rejected')">
+                Reject ✕
+              </button>
+            </div>
+          `;
+        } else {
+          actionHtml = `
+            <div style="font-size:0.8rem; color:var(--gray-500); text-align:right;">
+              <span style="font-weight:700; color:${a.status === 'accepted' ? '#059669' : '#dc2626'};">${a.status.toUpperCase()}</span>
+              ${a.decided_by ? `<div style="font-size:0.72rem; color:var(--gray-400);">by ${a.decided_by}</div>` : ''}
+              ${a.decided_at ? `<div style="font-size:0.7rem; color:var(--gray-400);">${new Date(a.decided_at).toLocaleDateString()}</div>` : ''}
+            </div>
+          `;
+        }
+
+        return `
+          <tr style="border-bottom: 1px solid var(--gray-200);">
+            <td style="padding: 0.75rem;">
+              <strong>${a.student_name}</strong>
+              <div style="color:var(--gray-500); font-size:0.75rem;">${a.student_email}</div>
+              ${resumeBtn}
+            </td>
+            <td style="padding: 0.75rem;">
+              <strong>${a.job_title}</strong>
+              <div style="color:var(--gray-600); font-size:0.75rem;">🏢 ${a.company_name}</div>
+            </td>
+            <td style="padding: 0.75rem; color:var(--gray-700);">
+              ${a.degree || 'Degree'}${a.graduation_year ? ` ('${String(a.graduation_year).slice(-2)})` : ''}
+              <div style="color:var(--gray-500); font-size:0.75rem;">${a.college_name || '-'}</div>
+            </td>
+            <td style="padding: 0.75rem;">
+              <span class="badge" style="background:var(--gray-100); color:var(--gray-700); font-family:monospace; font-size:0.72rem;">
+                ${a.reference_code || 'REF-' + a.application_id}
+              </span>
+              <div style="color:var(--gray-400); font-size:0.72rem; margin-top:0.2rem;">${new Date(a.applied_at).toLocaleDateString()}</div>
+            </td>
+            <td style="padding: 0.75rem;">
+              <span class="badge status-${a.status}">${a.status.replace('_', ' ').toUpperCase()}</span>
+            </td>
+            <td style="padding: 0.75rem; text-align: right;">
+              ${actionHtml}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function updateAdminAppStatus(appId, newStatus) {
+      const note = prompt(`Enter optional decision note for applicant (Marking as ${newStatus.toUpperCase()}):`, '') || '';
+      try {
+        const res = await apiRequest(`/applications/${appId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: newStatus, notes: note })
+        });
+        if (res) {
+          showToast(`Application marked as ${newStatus.toUpperCase()} successfully!`, 'success');
+          await loadAdminApplications();
+          await loadOverview();
+        }
+      } catch (err) {}
+    }
+
+    async function loadEmailConfig() {
+      try {
+        const res = await apiRequest('/admin/email-config');
+        if (res) {
+          document.getElementById('admin-email-display').value = res.admin_email;
+          const badge = document.getElementById('smtp-status-badge');
+          const helper = document.getElementById('smtp-helper-text');
+          if (res.smtp_configured) {
+            badge.style.background = '#dcfce7';
+            badge.style.color = '#15803d';
+            badge.innerText = 'Connected & Active ✓';
+            helper.innerHTML = `<strong>Status:</strong> Ready! Applications will send emails to <code>${res.admin_email}</code> with Accept/Reject buttons. Password: <code>${res.masked_password}</code>`;
+          } else {
+            badge.style.background = '#fef08a';
+            badge.style.color = '#854d0e';
+            badge.innerText = 'App Password Needed ⚠️';
+            helper.innerHTML = `<strong>Attention:</strong> Enter your 16-character Google App Password below to enable live email delivery to <code>${res.admin_email}</code>.`;
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function saveSmtpPassword() {
+      const pwd = document.getElementById('input-smtp-password').value.trim();
+      if (!pwd) {
+        showToast('Please enter your 16-character Google App Password', 'warning');
+        return;
+      }
+      try {
+        const res = await apiRequest('/admin/update-smtp-password', {
+          method: 'POST',
+          body: JSON.stringify({ password: pwd })
+        });
+        if (res && res.success) {
+          showToast(res.message, 'success');
+          document.getElementById('input-smtp-password').value = '';
+          await loadEmailConfig();
+        }
+      } catch (err) {
+        showToast(err.message || 'Failed to update SMTP password', 'error');
+      }
+    }
+
+    async function sendTestEmail() {
+      const pwd = document.getElementById('input-smtp-password').value.trim();
+      showToast('Sending test email to vinaybandi651@gmail.com...', 'info');
+      try {
+        const res = await apiRequest('/admin/test-email', {
+          method: 'POST',
+          body: JSON.stringify({ password: pwd || undefined })
+        });
+        if (res && res.success) {
+          showToast(res.message, 'success');
+          await loadEmailConfig();
+          await loadEmailLogs();
+        } else {
+          showToast(res ? res.error : 'Email send failed', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'Email delivery failed. Verify your Google App Password.', 'error');
+        await loadEmailLogs();
+      }
+    }
+
+    async function loadEmailLogs() {
+      const tbody = document.getElementById('email-logs-table-body');
+      try {
+        const res = await apiRequest('/admin/email-logs');
+        if (res && res.logs && res.logs.length > 0) {
+          tbody.innerHTML = res.logs.map(log => {
+            let statusColor = '#059669';
+            let statusBg = '#dcfce7';
+            if (log.status === 'failed') {
+              statusColor = '#dc2626';
+              statusBg = '#fee2e2';
+            } else if (log.status === 'queued_dev_mode') {
+              statusColor = '#b45309';
+              statusBg = '#fef3c7';
+            }
+            return `
+              <tr style="border-bottom: 1px solid var(--gray-200);">
+                <td style="padding: 0.5rem 0.75rem; font-weight: 600;">${log.recipient_email}</td>
+                <td style="padding: 0.5rem 0.75rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${log.subject}">${log.subject}</td>
+                <td style="padding: 0.5rem 0.75rem;">
+                  <span style="background:${statusBg}; color:${statusColor}; font-weight:700; padding:2px 8px; border-radius:10px; font-size:0.72rem; text-transform:uppercase;">
+                    ${log.status}
+                  </span>
+                </td>
+                <td style="padding: 0.5rem 0.75rem; color: var(--gray-500);">${new Date(log.created_at).toLocaleString()}</td>
+                <td style="padding: 0.5rem 0.75rem; color: var(--gray-600); font-size:0.75rem; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${log.error_message || 'Delivered successfully'}">
+                  ${log.error_message || '✓ Sent'}
+                </td>
+                <td style="padding: 0.5rem 0.75rem; text-align: right;">
+                  <a href="email_preview.html?id=${log.id}" target="_blank" class="btn btn-sm btn-outline" style="font-size: 0.72rem; padding: 2px 8px; text-decoration: none;" title="Open and interact with this email">
+                    👁️ View Email
+                  </a>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 1.5rem; color: var(--gray-400);">No email delivery records yet.</td></tr>`;
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 1.5rem; color: var(--danger);">Failed to load email logs.</td></tr>`;
+      }
+    }
+
+    async function resendEmail(appId) {
+      if (!confirm('Send/Resend application notification email to vinaybandi651@gmail.com with Accept/Reject buttons?')) return;
+      showToast('Dispatching notification email to vinaybandi651@gmail.com...', 'info');
+      try {
+        const res = await apiRequest(`/admin/resend-application-email/${appId}`, { method: 'POST' });
+        if (res && res.success) {
+          showToast(res.message, 'success');
+          await loadEmailLogs();
+        } else {
+          showToast(res ? res.error : 'Failed to send email', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'Error sending email', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

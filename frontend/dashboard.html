@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fresh Graduate AI Recommendations | GradMatch AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Fresh Graduate Welcome Banner -->
+    <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; border-radius: var(--radius-lg); padding: 1.5rem 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: var(--shadow-md);">
+      <div>
+        <h1 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem;">🎓 AI-Powered Fresh Graduate Opportunities Feed</h1>
+        <p style="font-size: 0.9rem; opacity: 0.9; max-width: 650px;">
+          Ranked dynamically using degree compatibility, verified technical skills, fresher eligibility (0 years exp), and hyperlocal proximity / remote flexibility.
+        </p>
+      </div>
+      <a href="profile.html" class="btn btn-secondary btn-sm" style="background:#fff; color:#4f46e5; font-weight:700;">
+        ⚙️ Manage Graduate Profile
+      </a>
+    </div>
+
+    <!-- Student Dashboard Layout: Profile Card + Main Recommendations Area -->
+    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 2rem; align-items: start;">
+      
+      <!-- Left: Graduate Profile Card -->
+      <aside class="card" style="padding: 1.75rem; position: sticky; top: 90px;">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div id="profile-avatar-container" style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 0.75rem auto; border: 2px dashed #cbd5e1; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+            <img id="profile-avatar" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+          </div>
+          <h2 id="profile-name" style="font-size: 1.25rem; font-weight: 800; color: var(--dark-900);">Loading...</h2>
+          <div id="profile-education" style="font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-top: 0.2rem;">Computer Science</div>
+          <div id="profile-institution" style="font-size: 0.8rem; color: var(--gray-500);">University</div>
+          
+          <div style="display: flex; gap: 0.35rem; justify-content: center; flex-wrap: wrap; margin-top: 0.6rem;">
+            <span id="profile-grad-year" class="badge" style="background:#e0f2fe; color:#0369a1;">Class of 2026</span>
+            <span id="profile-fresher-badge" class="badge" style="background:#ecfdf5; color:#047857;">Fresher</span>
+          </div>
+        </div>
+
+        <!-- Completion Percentage Bar -->
+        <div style="margin-bottom: 1.5rem; background: var(--gray-100); padding: 0.85rem; border-radius: var(--radius-md);">
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.4rem;">
+            <span>Profile Completion</span>
+            <span id="profile-completion" style="color: var(--primary);">85%</span>
+          </div>
+          <div class="score-progress-track">
+            <div id="profile-completion-bar" class="score-progress-fill" style="width: 85%;"></div>
+          </div>
+        </div>
+
+        <!-- Graduate Meta Information -->
+        <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.85rem; border-top: 1px solid var(--gray-200); padding-top: 1.25rem;">
+          <div>
+            <span style="color: var(--gray-500); display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">Resume Attachment</span>
+            <div id="profile-resume-container" style="margin-top: 0.25rem;">
+              <span style="color: var(--gray-400); font-size: 0.8rem;">Checking resume...</span>
+            </div>
+          </div>
+
+          <div>
+            <span style="color: var(--gray-500); display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">Preferred Location & Radius</span>
+            <span id="profile-location" style="font-weight: 600; color: var(--dark-800); display: block; margin-top: 0.2rem;">📍 Hyderabad</span>
+            <span id="profile-max-dist" style="font-size: 0.75rem; color: var(--gray-500);">Max travel: 15 km radius</span>
+            <span id="profile-relocate" style="font-size: 0.75rem; color: var(--success); display: block; font-weight: 600; margin-top: 0.2rem;">✓ Willing to relocate</span>
+          </div>
+
+          <div>
+            <span style="color: var(--gray-500); display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">Expected Compensation</span>
+            <span id="profile-salary" style="font-weight: 700; color: #047857; display: block; margin-top: 0.2rem;">₹4,00,000 / year</span>
+          </div>
+
+          <div>
+            <span style="color: var(--gray-500); display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.35rem;">Target Roles</span>
+            <div id="profile-roles-box" style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+              <span class="badge" style="background:#f1f5f9; color:#475569;">Software Engineer</span>
+            </div>
+          </div>
+
+          <div>
+            <span style="color: var(--gray-500); display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.35rem;">My Skills</span>
+            <div id="profile-skills-box" style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+              <span class="skill-tag">Python</span>
+              <span class="skill-tag">React</span>
+            </div>
+          </div>
+        </div>
+
+        <a href="profile.html" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 1.5rem;">
+          ✏️ Edit Profile & Resume
+        </a>
+      </aside>
+
+      <!-- Right: AI Recommendations Section -->
+      <main>
+        
+        <!-- Header & Radius Filters -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark-900); display: flex; align-items: center; gap: 0.5rem;">
+              <span>🤖</span> AI Recommended Jobs
+            </h1>
+            <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 0.2rem;">
+              Ranked dynamically by Content (40%), Location (25%), Availability (15%), Collaborative Behavior (10%), and Pay (10%).
+            </p>
+          </div>
+
+          <!-- Quick Distance Filter Pills -->
+          <div style="display: flex; gap: 0.4rem; background: var(--gray-100); padding: 0.25rem; border-radius: var(--radius-md);">
+            <button class="btn btn-sm filter-pill active" onclick="filterByDistance('all', this)" style="background:var(--white); color:var(--primary); font-weight:700;">All</button>
+            <button class="btn btn-sm filter-pill" onclick="filterByDistance(1, this)" style="color:var(--gray-600);">Within 1 km</button>
+            <button class="btn btn-sm filter-pill" onclick="filterByDistance(3, this)" style="color:var(--gray-600);">Within 3 km</button>
+            <button class="btn btn-sm filter-pill" onclick="filterByDistance(5, this)" style="color:var(--gray-600);">Within 5 km</button>
+          </div>
+        </div>
+
+        <!-- Recommended Jobs List Container -->
+        <div id="recommendations-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <div style="text-align: center; padding: 4rem; color: var(--gray-500);">
+            Analyzing skills, schedule, and live coordinates...
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Apply Modal with Cover Note -->
+  <div id="apply-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-job-title" style="font-weight: 700; font-size: 1.15rem;">Apply for Job</h3>
+        <button onclick="closeApplyModal()" style="font-size: 1.25rem; color: var(--gray-400);">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: var(--primary-light); padding: 0.85rem 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--primary);">
+          ✨ Your profile details, verified skills, and distance will be shared automatically with the employer.
+        </div>
+        <input type="hidden" id="modal-job-id">
+        <div class="form-group">
+          <label class="form-label" for="cover-note">Short Note to Employer (Optional)</label>
+          <textarea id="cover-note" class="form-control" rows="4" placeholder="Briefly mention your availability this week or relevant past experience..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeApplyModal()">Cancel</button>
+        <button class="btn btn-primary" id="confirm-apply-btn" onclick="submitApplication()">Submit Application</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    let allRecommendations = [];
+    let currentDistanceFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!requireAuth(['student'])) return;
+      setupNavbar('dashboard');
+      await loadStudentProfile();
+      await loadRecommendations();
+    });
+
+    async function loadStudentProfile() {
+      try {
+        const res = await apiRequest('/students/profile');
+        if (res && res.profile) {
+          const p = res.profile;
+          document.getElementById('profile-name').innerText = p.full_name;
+          const avatarImg = document.getElementById('profile-avatar');
+          const avatarContainer = document.getElementById('profile-avatar-container');
+          if (p.avatar_url && p.avatar_url.trim()) {
+            avatarImg.src = p.avatar_url;
+            avatarImg.style.display = 'block';
+            avatarContainer.style.border = '3px solid var(--primary-light)';
+            avatarContainer.style.boxShadow = 'var(--shadow-sm)';
+          } else {
+            avatarImg.removeAttribute('src');
+            avatarImg.style.display = 'none';
+            avatarContainer.style.border = '2px dashed #cbd5e1';
+            avatarContainer.style.boxShadow = 'none';
+          }
+          
+          const eduDisplay = p.degree ? `${p.degree}${p.specialization ? ' (' + p.specialization + ')' : ''}` : (p.education || 'Graduate');
+          document.getElementById('profile-education').innerText = eduDisplay;
+          document.getElementById('profile-institution').innerText = p.college_name || p.institution || 'State University';
+          document.getElementById('profile-grad-year').innerText = `Class of ${p.graduation_year || 2026}`;
+          document.getElementById('profile-fresher-badge').innerText = p.fresher_status || 'Fresher';
+          
+          document.getElementById('profile-completion').innerText = `${p.completion_percentage}%`;
+          document.getElementById('profile-completion-bar').style.width = `${p.completion_percentage}%`;
+          
+          document.getElementById('profile-location').innerText = `📍 ${p.address || 'Hyderabad'}`;
+          document.getElementById('profile-max-dist').innerText = `Max search radius: ${p.max_distance_km || 15} km`;
+          
+          const relocateEl = document.getElementById('profile-relocate');
+          if (p.willingness_to_relocate) {
+            relocateEl.innerText = '✓ Open to relocate anywhere';
+            relocateEl.style.color = 'var(--success)';
+          } else {
+            relocateEl.innerText = '📍 Local opportunities preferred';
+            relocateEl.style.color = 'var(--gray-600)';
+          }
+          
+          const salaryVal = p.expected_salary ? Number(p.expected_salary).toLocaleString('en-IN') : '4,00,000';
+          document.getElementById('profile-salary').innerText = `₹${salaryVal} / ${p.salary_type || 'year'}`;
+
+          // Resume container
+          const resumeBox = document.getElementById('profile-resume-container');
+          if (p.resume_url) {
+            const cleanUrl = p.resume_url.startsWith('http') ? p.resume_url : `/api${p.resume_url.startsWith('/') ? '' : '/'}${p.resume_url}`;
+            resumeBox.innerHTML = `
+              <a href="${cleanUrl}" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.78rem; padding:0.25rem 0.5rem; display:inline-flex; align-items:center; gap:0.25rem;">
+                📥 View Uploaded Resume
+              </a>
+            `;
+          } else {
+            resumeBox.innerHTML = `
+              <a href="profile.html" style="font-size:0.8rem; color:var(--danger); font-weight:600; text-decoration:underline;">
+                + Upload Resume PDF
+              </a>
+            `;
+          }
+
+          // Preferred roles
+          const rolesBox = document.getElementById('profile-roles-box');
+          let rolesList = [];
+          if (Array.isArray(p.preferred_roles)) rolesList = p.preferred_roles;
+          else if (typeof p.preferred_roles === 'string' && p.preferred_roles) rolesList = p.preferred_roles.split(',').map(s => s.trim());
+          if (rolesList.length > 0) {
+            rolesBox.innerHTML = rolesList.map(r => `<span class="badge" style="background:#e0e7ff; color:var(--primary);">${r}</span>`).join('');
+          } else {
+            rolesBox.innerHTML = `<span style="color:var(--gray-400); font-size:0.8rem;">Open to all entry roles</span>`;
+          }
+
+          // Skills
+          const skillsBox = document.getElementById('profile-skills-box');
+          if (p.skills && p.skills.length > 0) {
+            skillsBox.innerHTML = p.skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
+          } else {
+            skillsBox.innerHTML = `<span style="color:var(--gray-400); font-size:0.8rem;">No skills added yet</span>`;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadRecommendations() {
+      const container = document.getElementById('recommendations-container');
+      try {
+        const res = await apiRequest('/recommendations/my');
+        if (res && res.recommendations) {
+          allRecommendations = res.recommendations;
+          renderRecommendations();
+        }
+      } catch (err) {
+        container.innerHTML = `<div style="text-align:center; padding:3rem; color:var(--danger);">Failed to load recommendations.</div>`;
+      }
+    }
+
+    function filterByDistance(dist, btnElement) {
+      currentDistanceFilter = dist;
+      document.querySelectorAll('.filter-pill').forEach(btn => {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--gray-600)';
+        btn.style.fontWeight = '500';
+      });
+      btnElement.style.background = 'var(--white)';
+      btnElement.style.color = 'var(--primary)';
+      btnElement.style.fontWeight = '700';
+      renderRecommendations();
+    }
+
+    function renderRecommendations() {
+      const container = document.getElementById('recommendations-container');
+      
+      let filtered = allRecommendations;
+      if (currentDistanceFilter !== 'all') {
+        const maxKm = parseFloat(currentDistanceFilter);
+        filtered = allRecommendations.filter(j => j.work_arrangement === 'Remote' || (j.distance_km !== null && j.distance_km <= maxKm));
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="padding: 3rem; text-align: center; color: var(--gray-500);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+            <div style="font-weight: 700; color: var(--dark-800);">No jobs found in this distance radius</div>
+            <div style="font-size: 0.85rem; margin-top: 0.25rem;">Try expanding the filter to All or explore remote opportunities.</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(job => {
+        const score = job.match_score;
+        const badgeClass = score >= 85 ? 'badge-match-high' : (score >= 70 ? 'badge-match-med' : 'badge-match-low');
+        const breakdown = job.scores_breakdown || {};
+        
+        let applyButtonHtml = '';
+        if (job.application_status) {
+          applyButtonHtml = `<span class="badge status-${job.application_status}">Status: ${job.application_status.replace('_', ' ').toUpperCase()}</span>`;
+        } else {
+          applyButtonHtml = `<button class="btn btn-primary btn-sm" onclick="openApplyModal(${job.id}, '${escapeHtml(job.title)}')">Apply Now</button>`;
+        }
+
+        const bookmarkIcon = job.is_saved ? '★ Bookmarked' : '☆ Save';
+
+        // Badges
+        const isFresher = job.is_fresher_friendly || job.min_experience_years === 0;
+        const fresherBadge = isFresher ? `<span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;">🎓 Fresher Friendly</span>` : '';
+        
+        const workArrangement = job.work_arrangement || 'On-site';
+        let workBadge = '';
+        if (workArrangement === 'Remote') {
+          workBadge = `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">🌐 Remote</span>`;
+        } else if (workArrangement === 'Hybrid') {
+          workBadge = `<span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700;">🔄 Hybrid</span>`;
+        } else {
+          workBadge = `<span class="badge" style="background:#f1f5f9; color:#475569;">🏢 On-site</span>`;
+        }
+
+        const qualBadge = job.min_qualification ? `<span class="badge" style="background:#f3e8ff; color:#7e22ce; font-weight:600;">📜 Min: ${job.min_qualification}</span>` : '';
+
+        // Salary display
+        let salaryText = '';
+        if (job.salary_min && job.salary_max) {
+          salaryText = `₹${Number(job.salary_min).toLocaleString('en-IN')} - ₹${Number(job.salary_max).toLocaleString('en-IN')} / yr`;
+        } else if (job.pay_amount) {
+          salaryText = `₹${Number(job.pay_amount).toLocaleString('en-IN')} / ${job.pay_frequency || 'month'}`;
+        } else {
+          salaryText = 'Competitive CTC';
+        }
+
+        // Distance / Location display
+        const locDisplay = workArrangement === 'Remote' 
+          ? '🌐 Remote Position'
+          : `📍 ${job.formatted_distance || (job.distance_km != null ? job.distance_km.toFixed(1) + ' km' : 'Nearby')} • ${job.location_address || ''}`;
+
+        // Missing skills alert
+        let missingSkillsHtml = '';
+        if (job.missing_skills && job.missing_skills.length > 0) {
+          missingSkillsHtml = `
+            <div style="font-size:0.8rem; background:#fee2e2; color:#991b1b; padding:0.35rem 0.65rem; border-radius:var(--radius-sm); margin-top:0.6rem; display:inline-flex; align-items:center; gap:0.35rem;">
+              <span>⚠️ Recommended skills to learn:</span> <strong>${job.missing_skills.join(', ')}</strong>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="job-card" id="job-card-${job.id}">
+            <div class="job-card-header">
+              <div>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.4rem;">
+                  ${fresherBadge}
+                  ${workBadge}
+                  ${qualBadge}
+                </div>
+                <h3 class="job-title">
+                  <a href="job_details.html?id=${job.id}" style="color:inherit;">${job.title}</a>
+                </h3>
+                <div class="job-company">
+                  🏢 ${job.company_name} • <span style="color:var(--gray-500);">${locDisplay}</span>
+                </div>
+              </div>
+
+              <!-- High-visibility Match Badge -->
+              <div style="text-align: right;">
+                <span class="badge ${badgeClass}" style="font-size: 0.95rem; padding: 0.45rem 0.9rem;">
+                  ⚡ ${score}% Match
+                </span>
+              </div>
+            </div>
+
+            <!-- Meta details row -->
+            <div class="job-meta-row">
+              <div class="meta-item pay">💼 ${salaryText}</div>
+              <div class="meta-item">⏳ ${isFresher ? '0 Yrs Exp (Fresher)' : `${job.min_experience_years || 0}+ Yrs Exp`}</div>
+              <div class="meta-item">⏱️ ${job.job_type || 'Full-time'}</div>
+              <div class="meta-item">📅 Apply by: ${job.deadline || 'Immediate'}</div>
+            </div>
+
+            <!-- AI Explanation Accordion Box -->
+            <div class="ai-match-box">
+              <div class="ai-match-box-title">
+                <span>🤖 Why this job matches you:</span>
+                <span style="font-size:0.75rem; text-transform:none; color:var(--gray-500);">Hybrid Score: ${score}%</span>
+              </div>
+
+              <ul class="ai-reason-list">
+                ${(job.reasons || []).map(r => `
+                  <li class="ai-reason-item">
+                    <span class="check">${r.startsWith('✓') ? '' : '✓ '}</span>${r}
+                  </li>
+                `).join('')}
+              </ul>
+
+              <!-- Score Component Breakdown Bars -->
+              <div class="score-bars-grid">
+                <div class="score-bar-col">
+                  <div class="score-bar-label"><span>Skills & Degree</span><span>${breakdown.content_score || 0}%</span></div>
+                  <div class="score-progress-track"><div class="score-progress-fill" style="width: ${breakdown.content_score || 0}%;"></div></div>
+                </div>
+                <div class="score-bar-col">
+                  <div class="score-bar-label"><span>Location & Remote</span><span>${breakdown.location_score || 0}%</span></div>
+                  <div class="score-progress-track"><div class="score-progress-fill" style="width: ${breakdown.location_score || 0}%; background:#059669;"></div></div>
+                </div>
+                <div class="score-bar-col">
+                  <div class="score-bar-label"><span>Fresher & Schedule</span><span>${breakdown.availability_score || 0}%</span></div>
+                  <div class="score-progress-track"><div class="score-progress-fill" style="width: ${breakdown.availability_score || 0}%; background:#0284c7;"></div></div>
+                </div>
+                <div class="score-bar-col">
+                  <div class="score-bar-label"><span>Peer Trend</span><span>${breakdown.collaborative_score || 0}%</span></div>
+                  <div class="score-progress-track"><div class="score-progress-fill" style="width: ${breakdown.collaborative_score || 0}%; background:#7c3aed;"></div></div>
+                </div>
+              </div>
+
+              ${missingSkillsHtml}
+            </div>
+
+            <!-- Required Skills Tags -->
+            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.6rem;">
+              <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 600;">Required Skills:</span>
+              ${(job.required_skills || []).map(s => {
+                const isMatched = (job.matched_skills || []).some(ms => ms.toLowerCase() === s.toLowerCase());
+                return `<span class="skill-tag ${isMatched ? 'matched' : ''}">${isMatched ? '✓ ' : ''}${s}</span>`;
+              }).join('')}
+            </div>
+
+            <!-- Actions Row -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-100);">
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary btn-sm" onclick="toggleSave(${job.id}, this)">${bookmarkIcon}</button>
+                <a href="job_details.html?id=${job.id}" class="btn btn-secondary btn-sm">Full Details</a>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                ${applyButtonHtml}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    async function toggleSave(jobId, btn) {
+      try {
+        const res = await apiRequest(`/saved_jobs/${jobId}`, { method: 'POST' });
+        if (res) {
+          showToast(res.message, 'success');
+          btn.innerText = res.saved ? '★ Bookmarked' : '☆ Save';
+        }
+      } catch (err) {}
+    }
+
+    function openApplyModal(jobId, title) {
+      const modal = document.getElementById('apply-modal');
+      modal.querySelector('.modal-header').innerHTML = `
+        <h3 id="modal-job-title" style="font-weight: 700; font-size: 1.15rem; margin:0;">Apply for: ${title}</h3>
+        <button onclick="closeApplyModal()" style="font-size: 1.25rem; color: var(--gray-400);">&times;</button>
+      `;
+      modal.querySelector('.modal-body').innerHTML = `
+        <div style="background: var(--primary-light); padding: 0.85rem 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--primary);">
+          ✨ Your profile details, verified skills, and distance will be shared automatically with the employer.
+        </div>
+        <input type="hidden" id="modal-job-id" value="${jobId}">
+        <div class="form-group">
+          <label class="form-label" for="cover-note">Short Note to Employer (Optional)</label>
+          <textarea id="cover-note" class="form-control" rows="4" placeholder="Briefly mention your availability this week or relevant past experience..."></textarea>
+        </div>
+      `;
+      const footer = modal.querySelector('.modal-footer');
+      footer.style.display = 'flex';
+      footer.innerHTML = `
+        <button class="btn btn-secondary" onclick="closeApplyModal()">Cancel</button>
+        <button class="btn btn-primary" id="confirm-apply-btn" onclick="submitApplication()">Submit Application</button>
+      `;
+      modal.classList.add('active');
+    }
+
+    function closeApplyModal() {
+      document.getElementById('apply-modal').classList.remove('active');
+    }
+
+    async function submitApplication() {
+      const jobId = document.getElementById('modal-job-id').value;
+      const coverNote = document.getElementById('cover-note').value;
+      const btn = document.getElementById('confirm-apply-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Submitting...';
+
+      try {
+        const res = await apiRequest('/applications', {
+          method: 'POST',
+          body: JSON.stringify({ job_id: parseInt(jobId), cover_note: coverNote })
+        });
+
+        if (res) {
+          showToast('Application submitted successfully! 🚀', 'success');
+          await loadRecommendations();
+
+          const modalBody = document.querySelector('#apply-modal .modal-body');
+          const modalHeader = document.querySelector('#apply-modal .modal-header');
+          const modalFooter = document.querySelector('#apply-modal .modal-footer');
+
+          modalHeader.innerHTML = `
+            <h3 style="font-weight: 800; font-size: 1.15rem; color: #166534; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+              <span>✓</span> Application Successfully Submitted!
+            </h3>
+            <button onclick="closeApplyModal()" style="font-size: 1.25rem; color: var(--gray-400);">&times;</button>
+          `;
+
+          modalBody.innerHTML = `
+            <div style="text-align: center; padding: 0.75rem 0;">
+              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📬</div>
+              <div style="margin-bottom: 0.75rem;">
+                <span class="badge" style="background:#e0e7ff; color:var(--primary); font-family:monospace; font-size:0.85rem; padding: 4px 10px;">
+                  Ref: ${res.reference_code || 'APP-2026'}
+                </span>
+                <span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700; margin-left: 0.5rem;">
+                  Status: PENDING REVIEW ⏳
+                </span>
+              </div>
+              <p style="font-size: 0.88rem; color: var(--gray-600); line-height: 1.5; margin: 0.75rem 0 1.25rem 0;">
+                Your application has been stored in the database. An approval email with <strong>Accept</strong> and <strong>Reject</strong> buttons has been dispatched to <strong>vinaybandi651@gmail.com</strong>.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <a href="email_preview.html?app_id=${res.application_id}" target="_blank" class="btn btn-primary" style="font-weight: 700; text-align: center; padding: 0.75rem;">
+                  📬 Open Admin Review Email (Live Preview & Decision)
+                </a>
+                <a href="applications.html" class="btn btn-outline" style="font-weight: 600; text-align: center;">
+                  📋 Go to My Applications Tracker
+                </a>
+              </div>
+            </div>
+          `;
+          modalFooter.style.display = 'none';
+        }
+      } catch (err) {
+        // error toast handled by apiRequest
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Submit Application';
+      }
+    }
+
+    // Switch student demo instantly for viva presentation
+    async function switchStudentDemo(email) {
+      try {
+        const res = await apiRequest('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password: 'Password@123' })
+        });
+        if (res && res.token) {
+          setAuthSession(res.user, res.token);
+          showToast(`Switched persona to ${res.user.full_name}`, 'info');
+          setupNavbar('dashboard');
+          await loadStudentProfile();
+          await loadRecommendations();
+        }
+      } catch (err) {}
+    }
+  </script>
+</body>
+</html>

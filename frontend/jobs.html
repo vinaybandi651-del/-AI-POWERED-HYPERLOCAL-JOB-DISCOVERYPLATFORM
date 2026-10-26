@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore Nearby Jobs & Map | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <!-- Leaflet CSS for Interactive OpenStreetMap -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body style="background: #f8fafc;">
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container" style="max-width: 1400px; padding: 1.25rem 1.5rem;">
+
+    <!-- Filter & Search Control Bar -->
+    <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem;">
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto; gap: 0.75rem; align-items: center;">
+        
+        <!-- Search Keyword -->
+        <div>
+          <input type="text" id="filter-search" class="form-control" placeholder="🔍 Search roles, skills, technologies (e.g. Python, React, QA)...">
+        </div>
+
+        <!-- Work Arrangement -->
+        <div>
+          <select id="filter-arrangement" class="form-control">
+            <option value="All">All Arrangements</option>
+            <option value="Remote">🌐 Remote</option>
+            <option value="Hybrid">🔄 Hybrid</option>
+            <option value="On-site">🏢 On-site</option>
+          </select>
+        </div>
+
+        <!-- Min Qualification Degree -->
+        <div>
+          <select id="filter-qualification" class="form-control">
+            <option value="All">All Degrees</option>
+            <option value="B.Tech">B.Tech / B.E.</option>
+            <option value="BCA">BCA</option>
+            <option value="MCA">MCA</option>
+            <option value="B.Sc">B.Sc</option>
+            <option value="B.Com">B.Com</option>
+            <option value="BBA">BBA</option>
+            <option value="MBA">MBA</option>
+            <option value="Diploma">Diploma</option>
+          </select>
+        </div>
+
+        <!-- Distance Radius Dropdown -->
+        <div>
+          <select id="filter-distance" class="form-control">
+            <option value="">Radius: Any Distance</option>
+            <option value="3">Within 3 km</option>
+            <option value="5">Within 5 km</option>
+            <option value="15" selected>Within 15 km</option>
+            <option value="30">Within 30 km</option>
+          </select>
+        </div>
+
+        <!-- Sorting -->
+        <div>
+          <select id="filter-sort" class="form-control">
+            <option value="nearest">Sort: Nearest First 📍</option>
+            <option value="pay_desc">Sort: Highest Pay 💰</option>
+            <option value="latest">Sort: Latest Added ⚡</option>
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        <div>
+          <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+        </div>
+      </div>
+
+      <!-- Second Row: Fresher Checkbox & Category -->
+      <div style="display: flex; gap: 1.5rem; align-items: center; margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-100); flex-wrap: wrap;">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.875rem; font-weight: 700; color: #15803d;">
+          <input type="checkbox" id="filter-fresher" style="width: 17px; height: 17px; accent-color: #15803d;">
+          <span>🎓 Freshers Only (0 Years Experience / Entry-Level)</span>
+        </label>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
+          <span style="font-size: 0.8rem; color: var(--gray-500); font-weight: 600;">Category:</span>
+          <select id="filter-category" class="form-control" style="font-size: 0.85rem; padding: 0.35rem 0.65rem; width: auto;">
+            <option value="All">All Categories</option>
+            <option value="Tech & IT">Tech & IT</option>
+            <option value="Hospitality & Food">Hospitality & Food</option>
+            <option value="Tutoring & Education">Tutoring & Education</option>
+            <option value="Design & Creative">Design & Creative</option>
+            <option value="Retail & Sales">Retail & Sales</option>
+            <option value="Marketing & Events">Marketing & Events</option>
+            <option value="Office & Administration">Office & Admin</option>
+            <option value="Logistics & Delivery">Logistics</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dual Map + Job Listings Split Layout -->
+    <div class="jobs-split-layout">
+      
+      <!-- Left: Interactive Map -->
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0.5rem;">
+          <div style="font-size: 0.85rem; font-weight: 700; color: var(--dark-800);">
+            📍 Live Hyperlocal Map (<span id="user-location-label">Center: Madhapur / Tech Hub</span>)
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="locateUserGPS()" style="font-size: 0.75rem;">
+            🎯 Use GPS Location
+          </button>
+        </div>
+        <div id="jobs-map" class="map-container"></div>
+      </div>
+
+      <!-- Right: Scrollable Job Cards Feed -->
+      <div style="display: flex; flex-direction: column; height: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding: 0 0.25rem;">
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--dark-900);">
+            Found <span id="jobs-count" style="color:var(--primary);">0</span> opportunities
+          </div>
+          <span style="font-size: 0.8rem; color: var(--gray-500);">Click any job to center map</span>
+        </div>
+
+        <div id="jobs-list-scroll" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem;">
+          <div style="text-align: center; padding: 3rem; color: var(--gray-500);">Searching opportunities...</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    let map = null;
+    let markersLayer = null;
+    let userMarker = null;
+    let radiusCircle = null;
+    let currentLat = 17.4483;
+    let currentLon = 78.3915;
+    let jobsData = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      setupNavbar('jobs');
+
+      // Check if user has saved coordinates
+      const user = getCurrentUser();
+      if (user && user.role === 'student') {
+        try {
+          const profileRes = await apiRequest('/students/profile');
+          if (profileRes && profileRes.profile && profileRes.profile.latitude) {
+            currentLat = profileRes.profile.latitude;
+            currentLon = profileRes.profile.longitude;
+            document.getElementById('user-location-label').innerText = `Center: ${profileRes.profile.address || 'My Campus'}`;
+          }
+        } catch (e) {}
+      }
+
+      initMap();
+      await fetchAndDisplayJobs();
+
+      // Hook filter change events
+      document.getElementById('filter-search').addEventListener('input', debounce(fetchAndDisplayJobs, 350));
+      document.getElementById('filter-arrangement').addEventListener('change', fetchAndDisplayJobs);
+      document.getElementById('filter-qualification').addEventListener('change', fetchAndDisplayJobs);
+      document.getElementById('filter-distance').addEventListener('change', fetchAndDisplayJobs);
+      document.getElementById('filter-category').addEventListener('change', fetchAndDisplayJobs);
+      document.getElementById('filter-fresher').addEventListener('change', fetchAndDisplayJobs);
+      document.getElementById('filter-sort').addEventListener('change', fetchAndDisplayJobs);
+    });
+
+    function initMap() {
+      map = L.map('jobs-map').setView([currentLat, currentLon], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      markersLayer = L.layerGroup().addTo(map);
+
+      updateUserMapMarker();
+    }
+
+    function updateUserMapMarker() {
+      if (userMarker) map.removeLayer(userMarker);
+      if (radiusCircle) map.removeLayer(radiusCircle);
+
+      const userIcon = L.divIcon({
+        className: 'user-pin-icon',
+        html: `<div style="background:#4f46e5; width:22px; height:22px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 10px rgba(0,0,0,0.4);"></div>`,
+        iconSize: [22, 22]
+      });
+
+      userMarker = L.marker([currentLat, currentLon], { icon: userIcon }).addTo(map)
+        .bindPopup("<b>Your Current Position</b><br>Reference center for distance matching.").openPopup();
+
+      const distVal = document.getElementById('filter-distance').value;
+      if (distVal) {
+        const radiusMeters = parseFloat(distVal) * 1000;
+        radiusCircle = L.circle([currentLat, currentLon], {
+          radius: radiusMeters,
+          color: '#4f46e5',
+          fillColor: '#818cf8',
+          fillOpacity: 0.12,
+          weight: 1.5
+        }).addTo(map);
+      }
+    }
+
+    async function fetchAndDisplayJobs() {
+      const search = document.getElementById('filter-search').value.trim();
+      const arrangement = document.getElementById('filter-arrangement').value;
+      const qualification = document.getElementById('filter-qualification').value;
+      const dist = document.getElementById('filter-distance').value;
+      const cat = document.getElementById('filter-category').value;
+      const fresherOnly = document.getElementById('filter-fresher').checked;
+      const sort = document.getElementById('filter-sort').value;
+
+      updateUserMapMarker();
+
+      let url = `/jobs?lat=${currentLat}&lon=${currentLon}&sort_by=${sort}`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+      if (arrangement && arrangement !== 'All') url += `&work_arrangement=${encodeURIComponent(arrangement)}`;
+      if (qualification && qualification !== 'All') url += `&qualification=${encodeURIComponent(qualification)}`;
+      if (dist) url += `&max_distance=${dist}`;
+      if (cat && cat !== 'All') url += `&category=${encodeURIComponent(cat)}`;
+      if (fresherOnly) url += `&fresher_only=true`;
+
+      const container = document.getElementById('jobs-list-scroll');
+
+      try {
+        const res = await apiRequest(url);
+        if (res && res.jobs) {
+          jobsData = res.jobs;
+          document.getElementById('jobs-count').innerText = jobsData.length;
+          renderJobCards(jobsData);
+          renderMapMarkers(jobsData);
+        }
+      } catch (err) {
+        container.innerHTML = `<div style="text-align:center; padding:3rem; color:var(--danger);">Error loading jobs.</div>`;
+      }
+    }
+
+    function renderJobCards(jobs) {
+      const container = document.getElementById('jobs-list-scroll');
+      if (jobs.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="padding: 2.5rem; text-align: center; color: var(--gray-500);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📍</div>
+            <div style="font-weight: 700;">No matching opportunities found</div>
+            <div style="font-size: 0.85rem; margin-top: 0.25rem;">Try increasing your distance radius, unchecking freshers-only, or adjusting keywords.</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = jobs.map(j => {
+        const isFresher = j.is_fresher_friendly || j.min_experience_years === 0;
+        const arrangement = j.work_arrangement || 'On-site';
+        
+        let arrangementBadge = '';
+        if (arrangement === 'Remote') arrangementBadge = `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">🌐 Remote</span>`;
+        else if (arrangement === 'Hybrid') arrangementBadge = `<span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700;">🔄 Hybrid</span>`;
+        else arrangementBadge = `<span class="badge" style="background:#f1f5f9; color:#475569;">🏢 On-site</span>`;
+
+        const qualBadge = j.min_qualification ? `<span class="badge" style="background:#f3e8ff; color:#7e22ce; font-weight:600;">📜 ${j.min_qualification}</span>` : '';
+        const fresherBadge = isFresher ? `<span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;">🎓 Fresher Friendly</span>` : '';
+
+        let salaryText = '';
+        if (j.salary_min && j.salary_max) {
+          salaryText = `₹${Number(j.salary_min).toLocaleString('en-IN')} - ₹${Number(j.salary_max).toLocaleString('en-IN')} / yr`;
+        } else if (j.pay_amount) {
+          salaryText = `₹${Number(j.pay_amount).toLocaleString('en-IN')}/${j.pay_frequency || 'month'}`;
+        } else {
+          salaryText = 'Competitive CTC';
+        }
+
+        const locText = arrangement === 'Remote' 
+          ? '🌐 Remote Position' 
+          : `📍 ${j.formatted_distance || (j.distance_km != null ? j.distance_km.toFixed(1) + ' km' : 'Nearby')} • ${j.location_address || ''}`;
+
+        return `
+          <div class="job-card" id="card-${j.id}" onclick="focusJobOnMap(${j.id}, ${j.latitude}, ${j.longitude})" style="cursor: pointer;">
+            <div class="job-card-header">
+              <div>
+                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.35rem;">
+                  ${fresherBadge}
+                  ${arrangementBadge}
+                  ${qualBadge}
+                </div>
+                <h3 class="job-title" style="font-size: 1.05rem;">
+                  <a href="job_details.html?id=${j.id}" onclick="event.stopPropagation()">${j.title}</a>
+                </h3>
+                <div class="job-company">🏢 ${j.company_name}</div>
+              </div>
+              <span class="badge" style="background:#e0e7ff; color:var(--primary); font-weight:700;">${j.category}</span>
+            </div>
+
+            <div class="job-meta-row" style="font-size: 0.8rem; margin: 0.5rem 0;">
+              <div class="meta-item pay">💼 ${salaryText}</div>
+              <div class="meta-item">⏳ ${isFresher ? '0 Yrs Exp (Fresher)' : `${j.min_experience_years || 0}+ Yrs Exp`}</div>
+              <div class="meta-item distance">${locText}</div>
+            </div>
+
+            <p style="font-size: 0.825rem; color: var(--gray-600); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 0.5rem;">
+              ${j.description || ''}
+            </p>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+              ${(j.skills || []).slice(0, 4).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding-top: 0.6rem; border-top: 1px solid var(--gray-100);">
+              <span style="font-size: 0.75rem; color: var(--gray-500);">📅 Deadline: ${j.deadline || 'Immediate'}</span>
+              <a href="job_details.html?id=${j.id}" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">View & Apply →</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderMapMarkers(jobs) {
+      if (!markersLayer) return;
+      markersLayer.clearLayers();
+
+      jobs.forEach(j => {
+        if (j.latitude && j.longitude) {
+          const marker = L.marker([j.latitude, j.longitude]).addTo(markersLayer);
+          marker.bindPopup(`
+            <div style="font-family: var(--font-sans); min-width: 190px;">
+              <div style="font-size: 0.75rem; color: #4f46e5; font-weight: 700; margin-bottom: 2px;">${j.work_arrangement || 'On-site'} • ${j.min_qualification || 'Any Degree'}</div>
+              <strong style="font-size: 0.95rem; color: #0f172a;">${j.title}</strong>
+              <div style="color: #475569; font-size: 0.8rem; margin: 2px 0 6px;">🏢 ${j.company_name}</div>
+              <div style="color: #047857; font-weight: bold; font-size: 0.85rem;">
+                ${j.salary_min ? `₹${Number(j.salary_min).toLocaleString('en-IN')} - ₹${Number(j.salary_max).toLocaleString('en-IN')}` : `₹${j.pay_amount}/${j.pay_frequency}`}
+              </div>
+              <div style="color: #4f46e5; font-size: 0.8rem; margin-top: 2px;">📍 ${j.formatted_distance || ''}</div>
+              <div style="margin-top: 8px;">
+                <a href="job_details.html?id=${j.id}" style="display: inline-block; background: #4f46e5; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-decoration: none;">View Details</a>
+              </div>
+            </div>
+          `);
+        }
+      });
+    }
+
+    function focusJobOnMap(jobId, lat, lon) {
+      if (map && lat && lon) {
+        map.setView([lat, lon], 15, { animate: true });
+      }
+      document.querySelectorAll('.job-card').forEach(c => c.style.borderColor = 'var(--gray-200)');
+      const card = document.getElementById(`card-${jobId}`);
+      if (card) {
+        card.style.borderColor = 'var(--primary)';
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function locateUserGPS() {
+      if (!navigator.geolocation) {
+        showToast('Geolocation is not supported by your browser', 'error');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          currentLat = pos.coords.latitude;
+          currentLon = pos.coords.longitude;
+          document.getElementById('user-location-label').innerText = 'GPS Location Detected';
+          showToast('Updated location to your current GPS position', 'success');
+          map.setView([currentLat, currentLon], 14);
+          fetchAndDisplayJobs();
+        },
+        err => {
+          showToast('Could not access GPS location. Using default Hyderabad tech hub.', 'info');
+        }
+      );
+    }
+
+    function resetFilters() {
+      document.getElementById('filter-search').value = '';
+      document.getElementById('filter-arrangement').value = 'All';
+      document.getElementById('filter-qualification').value = 'All';
+      document.getElementById('filter-distance').value = '15';
+      document.getElementById('filter-category').value = 'All';
+      document.getElementById('filter-fresher').checked = false;
+      document.getElementById('filter-sort').value = 'nearest';
+      fetchAndDisplayJobs();
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+  </script>
+</body>
+</html>

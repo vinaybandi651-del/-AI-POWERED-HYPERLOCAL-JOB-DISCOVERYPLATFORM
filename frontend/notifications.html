@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body style="background: #f8fafc; min-height: 100vh; display: flex; flex-direction: column;">
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container" style="max-width: 780px; margin: 2rem auto; flex: 1;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark-900);">Notifications</h1>
+        <p style="color: var(--gray-500); font-size: 0.9rem;">Real-time alerts regarding applications, messages, and job matches</p>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="markAllNotificationsRead()">
+        ✓ Mark All Read
+      </button>
+    </div>
+
+    <div class="card" style="padding: 1.5rem;">
+      <div id="notifications-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div style="text-align: center; padding: 3rem; color: var(--gray-500);">Loading notifications...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth()) return;
+      setupNavbar('notifications');
+      loadNotifications();
+    });
+
+    async function loadNotifications() {
+      const container = document.getElementById('notifications-list');
+      try {
+        const res = await apiRequest('/notifications');
+        const list = res.notifications || [];
+
+        if (list.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
+              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔔</div>
+              <div style="font-weight: 700; color: var(--dark-800);">No notifications yet</div>
+              <p style="font-size: 0.85rem; margin-top: 0.25rem;">You will receive alerts here when employers respond to your applications or send messages.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = list.map(n => {
+          const isUnread = !n.is_read;
+          return `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-radius: var(--radius-md); background: ${isUnread ? '#eef2ff' : '#ffffff'}; border: 1px solid ${isUnread ? '#c7d2fe' : 'var(--gray-200)'}; transition: all 0.2s ease;">
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-weight: 700; color: var(--dark-900); font-size: 0.95rem;">${n.title}</span>
+                  ${isUnread ? '<span class="badge" style="background:var(--primary); color:#fff; font-size:0.7rem; padding:0.15rem 0.45rem;">New</span>' : ''}
+                </div>
+                <div style="color: var(--gray-600); font-size: 0.85rem; margin-top: 0.25rem;">${n.message}</div>
+                <div style="color: var(--gray-400); font-size: 0.75rem; margin-top: 0.35rem;">${n.created_at ? new Date(n.created_at).toLocaleString() : ''}</div>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                ${n.link ? `<a href="${n.link}" class="btn btn-secondary btn-sm" style="font-size: 0.8rem;">View</a>` : ''}
+                ${isUnread ? `<button onclick="markOneRead(${n.id})" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" title="Mark as read">✓</button>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `<div style="color: var(--danger); text-align: center; padding: 2rem;">Failed to load notifications: ${err.message}</div>`;
+      }
+    }
+
+    async function markAllNotificationsRead() {
+      try {
+        await apiRequest('/notifications/read_all', { method: 'POST' });
+        showToast('All notifications marked as read', 'success');
+        loadNotifications();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function markOneRead(notifId) {
+      try {
+        await apiRequest(`/notifications/${notifId}/read`, { method: 'POST' });
+        loadNotifications();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

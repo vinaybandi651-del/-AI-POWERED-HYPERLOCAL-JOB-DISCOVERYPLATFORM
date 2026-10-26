@@ -1,0 +1,11 @@
+Flask==3.1.2
+Flask-Cors==6.0.2
+numpy>=1.24.1
+scikit-learn>=1.4.0
+pandas>=2.0.0
+scipy>=1.10.0
+PyJWT==2.8.0
+Werkzeug==3.1.5
+python-dateutil>=2.8.2
+Flask-SQLAlchemy>=3.1.1
+SQLAlchemy>=2.0.16

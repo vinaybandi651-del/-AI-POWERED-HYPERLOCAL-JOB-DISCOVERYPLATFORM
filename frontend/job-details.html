@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Details | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body style="background: #f8fafc;">
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container" style="max-width: 1080px; margin-top: 1.5rem;">
+    
+    <a href="javascript:history.back()" style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--gray-600); font-size: 0.9rem; font-weight: 600; margin-bottom: 1.5rem;">
+      ← Back to Discoveries
+    </a>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+      
+      <!-- Main Job Details Column -->
+      <div>
+        <div class="card" style="padding: 2.25rem; margin-bottom: 1.5rem;">
+          
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <span class="badge" id="job-category-badge" style="background:#e0e7ff; color:var(--primary); font-weight:700; margin-bottom: 0.5rem;">Tech & IT</span>
+              <h1 id="job-title" style="font-size: 1.85rem; font-weight: 800; color: var(--dark-900);">Loading Opportunity...</h1>
+              <div id="company-name" style="font-size: 1.05rem; font-weight: 600; color: var(--gray-600); margin-top: 0.25rem;">
+                🏢 Company Name
+              </div>
+            </div>
+            <div id="job-status-badge"></div>
+          </div>
+
+          <!-- Highlight Key Metrics Box -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 1.25rem; margin: 1.5rem 0;">
+            <div>
+              <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase;">Compensation</span>
+              <div id="job-pay" style="font-size: 1.2rem; font-weight: 800; color: #047857; margin-top: 0.2rem;">₹-</div>
+            </div>
+            <div>
+              <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase;">Proximity</span>
+              <div id="job-distance" style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem;">- km away</div>
+            </div>
+            <div>
+              <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase;">Shift Timing</span>
+              <div id="job-hours" style="font-size: 0.95rem; font-weight: 700; color: var(--dark-800); margin-top: 0.2rem;">10:00 - 18:00</div>
+            </div>
+            <div>
+              <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase;">Openings</span>
+              <div id="job-workers" style="font-size: 1.2rem; font-weight: 800; color: var(--dark-800); margin-top: 0.2rem;">1 opening</div>
+            </div>
+          </div>
+
+          <!-- Description Section -->
+          <div style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Role Overview & Responsibilities</h3>
+            <p id="job-desc" style="color: var(--dark-700); line-height: 1.7; font-size: 0.95rem; white-space: pre-line;">
+              Description loading...
+            </p>
+          </div>
+
+          <!-- Required Skills -->
+          <div style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Required Skills</h3>
+            <div id="skills-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <!-- Dynamic tags -->
+            </div>
+          </div>
+
+          <!-- Exact Location & Map -->
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">Workplace Location</h3>
+            <div id="job-address" style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 0.75rem;">📍 Location</div>
+            <div id="mini-map" style="height: 220px; border-radius: var(--radius-md); border: 1px solid var(--gray-200); overflow: hidden;"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right Column: AI Match Score & Action Card -->
+      <div>
+        
+        <!-- AI Match Breakdown Card -->
+        <div class="card" style="padding: 1.75rem; margin-bottom: 1.5rem; border: 1.5px solid #c7d2fe; box-shadow: var(--shadow-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <span style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--primary);">🤖 AI Recommendation Fit</span>
+            <span id="ai-match-score" class="badge badge-match-high" style="font-size: 1.1rem; padding: 0.4rem 0.85rem;">
+              --% Match
+            </span>
+          </div>
+
+          <p style="font-size: 0.85rem; color: var(--gray-600); line-height: 1.5; margin-bottom: 1.25rem;">
+            Evaluated by the HyperLocal Hybrid AI Engine combining Content-Based Filtering, Haversine Distance, and Collaborative Student Behavior.
+          </p>
+
+          <div id="ai-reasons-box" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem;">
+            <!-- Reasons injected -->
+          </div>
+
+          <!-- Progress Bars -->
+          <div class="score-bars-grid" style="grid-template-columns: 1fr; gap: 0.75rem;">
+            <div class="score-bar-col">
+              <div class="score-bar-label"><span>Skill Overlap & Content (40%)</span><span id="bar-content-val">--%</span></div>
+              <div class="score-progress-track"><div id="bar-content" class="score-progress-fill" style="width: 0%;"></div></div>
+            </div>
+            <div class="score-bar-col">
+              <div class="score-bar-label"><span>Proximity & Distance (25%)</span><span id="bar-location-val">--%</span></div>
+              <div class="score-progress-track"><div id="bar-location" class="score-progress-fill" style="width: 0%; background:#059669;"></div></div>
+            </div>
+            <div class="score-bar-col">
+              <div class="score-bar-label"><span>Schedule Compatibility (15%)</span><span id="bar-avail-val">--%</span></div>
+              <div class="score-progress-track"><div id="bar-avail" class="score-progress-fill" style="width: 0%; background:#0284c7;"></div></div>
+            </div>
+            <div class="score-bar-col">
+              <div class="score-bar-label"><span>Peer Trend & Behavior (10%)</span><span id="bar-cf-val">--%</span></div>
+              <div class="score-progress-track"><div id="bar-cf" class="score-progress-fill" style="width: 0%; background:#7c3aed;"></div></div>
+            </div>
+            <div class="score-bar-col">
+              <div class="score-bar-label"><span>Pay Target Alignment (10%)</span><span id="bar-sal-val">--%</span></div>
+              <div class="score-progress-track"><div id="bar-sal" class="score-progress-fill" style="width: 0%; background:#ea580c;"></div></div>
+            </div>
+          </div>
+
+          <!-- Primary Actions -->
+          <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+            <button id="apply-btn" class="btn btn-primary" style="width: 100%; padding: 0.85rem;" onclick="openApplyModal()">
+              🚀 Apply for this Opportunity
+            </button>
+            <button id="bookmark-btn" class="btn btn-secondary" style="width: 100%;" onclick="toggleBookmark()">
+              ☆ Bookmark Opportunity
+            </button>
+            <button id="chat-btn" class="btn btn-outline" style="width: 100%;" onclick="openChat()">
+              💬 Message Employer
+            </button>
+          </div>
+        </div>
+
+        <!-- Business Info Card -->
+        <div class="card" style="padding: 1.5rem;">
+          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem;">About the Business</h4>
+          <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem;">
+            <div id="employer-avatar-wrap" style="width: 48px; height: 48px; border-radius: 8px; border: 1px dashed var(--gray-300); background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+              <img id="employer-avatar" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+            </div>
+            <div>
+              <div id="about-company-name" style="font-weight: 700; font-size: 0.95rem;">Company</div>
+              <div id="about-business-type" style="font-size: 0.8rem; color: var(--gray-500);">Hospitality</div>
+            </div>
+          </div>
+          <p id="about-company-bio" style="font-size: 0.825rem; color: var(--gray-600); line-height: 1.5;">
+            Verified business hiring local college student talent.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Apply Modal -->
+  <div id="apply-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title" style="font-weight: 700; font-size: 1.15rem;">Submit Application</h3>
+        <button onclick="closeApplyModal()" style="font-size: 1.25rem; color: var(--gray-400);">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="cover-note">Cover Note (Why are you a great fit?)</label>
+          <textarea id="cover-note" class="form-control" rows="4" placeholder="Mention your availability this weekend, interest in the role, or past experience..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeApplyModal()">Cancel</button>
+        <button class="btn btn-primary" id="submit-app-btn" onclick="submitApplication()">Send Application</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    let currentJob = null;
+    let studentProfile = null;
+    let miniMap = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      setupNavbar();
+      const params = new URLSearchParams(window.location.search);
+      const jobId = params.get('id');
+
+      if (!jobId) {
+        window.location.href = 'jobs.html';
+        return;
+      }
+
+      await loadJobDetails(jobId);
+    });
+
+    async function loadJobDetails(jobId) {
+      const user = getCurrentUser();
+      let lat = 17.4483, lon = 78.3915;
+
+      if (user && user.role === 'student') {
+        try {
+          const profRes = await apiRequest('/students/profile');
+          if (profRes && profRes.profile) {
+            studentProfile = profRes.profile;
+            lat = studentProfile.latitude || lat;
+            lon = studentProfile.longitude || lon;
+          }
+        } catch (e) {}
+      }
+
+      try {
+        const res = await apiRequest(`/jobs/${jobId}?lat=${lat}&lon=${lon}`);
+        if (res && res.job) {
+          currentJob = res.job;
+          renderJob(currentJob);
+          initMiniMap(currentJob.latitude, currentJob.longitude, currentJob.title);
+          await loadJobMatchAnalysis(jobId);
+        }
+      } catch (err) {
+        showToast('Error loading job details', 'error');
+      }
+    }
+
+    function renderJob(job) {
+      document.getElementById('job-category-badge').innerText = job.category;
+      document.getElementById('job-title').innerText = job.title;
+      document.getElementById('company-name').innerText = `🏢 ${job.company_name} • ${job.company_address || ''}`;
+      document.getElementById('job-pay').innerText = `₹${job.pay_amount}/${job.pay_frequency}`;
+      document.getElementById('job-distance').innerText = job.formatted_distance || 'Nearby';
+      document.getElementById('job-hours').innerText = `${job.start_time || '10:00'} - ${job.end_time || '18:00'}`;
+      document.getElementById('job-workers').innerText = `${job.workers_needed} opening${job.workers_needed > 1 ? 's' : ''}`;
+      document.getElementById('job-desc').innerText = job.description;
+      document.getElementById('job-address').innerText = `📍 ${job.location_address}`;
+      
+      document.getElementById('about-company-name').innerText = job.company_name;
+      document.getElementById('about-business-type').innerText = job.business_type || 'Local Business';
+      if (job.company_bio) document.getElementById('about-company-bio').innerText = job.company_bio;
+      if (job.employer_avatar) {
+        const empAvatar = document.getElementById('employer-avatar');
+        empAvatar.src = job.employer_avatar;
+        empAvatar.style.display = 'block';
+      }
+
+      // Render required skills
+      const skillsContainer = document.getElementById('skills-list');
+      const studentSkills = studentProfile ? (studentProfile.skills || []) : [];
+      skillsContainer.innerHTML = (job.skills || []).map(s => {
+        const matched = studentSkills.some(sk => sk.toLowerCase() === s.toLowerCase());
+        return `<span class="skill-tag ${matched ? 'matched' : ''}" style="font-size:0.9rem; padding: 0.35rem 0.75rem;">${matched ? '✓ ' : ''}${s}</span>`;
+      }).join('');
+    }
+
+    async function loadJobMatchAnalysis(jobId) {
+      const user = getCurrentUser();
+      if (!user || user.role !== 'student') {
+        document.getElementById('ai-match-score').innerText = '90% Match';
+        return;
+      }
+
+      try {
+        const res = await apiRequest('/recommendations/my');
+        if (res && res.recommendations) {
+          const matchItem = res.recommendations.find(r => r.id === parseInt(jobId));
+          if (matchItem) {
+            document.getElementById('ai-match-score').innerText = `⚡ ${matchItem.match_score}% Match`;
+            const b = matchItem.scores_breakdown || {};
+            
+            document.getElementById('bar-content').style.width = `${b.content_score || 0}%`;
+            document.getElementById('bar-content-val').innerText = `${b.content_score || 0}%`;
+
+            document.getElementById('bar-location').style.width = `${b.location_score || 0}%`;
+            document.getElementById('bar-location-val').innerText = `${b.location_score || 0}%`;
+
+            document.getElementById('bar-avail').style.width = `${b.availability_score || 0}%`;
+            document.getElementById('bar-avail-val').innerText = `${b.availability_score || 0}%`;
+
+            document.getElementById('bar-cf').style.width = `${b.collaborative_score || 0}%`;
+            document.getElementById('bar-cf-val').innerText = `${b.collaborative_score || 0}%`;
+
+            document.getElementById('bar-sal').style.width = `${b.salary_score || 0}%`;
+            document.getElementById('bar-sal-val').innerText = `${b.salary_score || 0}%`;
+
+            const reasonsBox = document.getElementById('ai-reasons-box');
+            reasonsBox.innerHTML = (matchItem.reasons || []).map(r => `
+              <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; color:var(--dark-800);">
+                <span style="color:var(--success); font-weight:bold;">✓</span> ${r}
+              </div>
+            `).join('');
+
+            if (matchItem.application_status) {
+              const applyBtn = document.getElementById('apply-btn');
+              applyBtn.disabled = true;
+              applyBtn.innerText = `Applied (${matchItem.application_status.toUpperCase()})`;
+              applyBtn.style.background = '#64748b';
+            }
+
+            if (matchItem.is_saved) {
+              document.getElementById('bookmark-btn').innerText = '★ Saved in Bookmarks';
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    function initMiniMap(lat, lon, title) {
+      if (!lat || !lon) return;
+      miniMap = L.map('mini-map').setView([lat, lon], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(miniMap);
+      L.marker([lat, lon]).addTo(miniMap).bindPopup(`<b>${title}</b>`).openPopup();
+    }
+
+    function openApplyModal() {
+      const user = getCurrentUser();
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      if (user.role !== 'student') {
+        showToast('Please sign in as a student to apply.', 'info');
+        return;
+      }
+      document.getElementById('apply-modal').classList.add('active');
+    }
+
+    function closeApplyModal() {
+      document.getElementById('apply-modal').classList.remove('active');
+    }
+
+    async function submitApplication() {
+      const note = document.getElementById('cover-note').value.trim();
+      const btn = document.getElementById('submit-app-btn');
+      btn.disabled = true;
+      btn.innerText = 'Submitting...';
+
+      try {
+        const res = await apiRequest('/applications', {
+          method: 'POST',
+          body: JSON.stringify({ job_id: currentJob.id, cover_note: note })
+        });
+        if (res) {
+          showToast('Application sent successfully! 🎉', 'success');
+          closeApplyModal();
+          const applyBtn = document.getElementById('apply-btn');
+          applyBtn.disabled = true;
+          applyBtn.innerText = 'Applied (Under Review)';
+          applyBtn.style.background = '#64748b';
+        }
+      } catch (err) {} finally {
+        btn.disabled = false;
+        btn.innerText = 'Send Application';
+      }
+    }
+
+    async function toggleBookmark() {
+      if (!currentJob) return;
+      try {
+        const res = await apiRequest(`/saved_jobs/${currentJob.id}`, { method: 'POST' });
+        if (res) {
+          showToast(res.message, 'success');
+          document.getElementById('bookmark-btn').innerText = res.saved ? '★ Saved in Bookmarks' : '☆ Bookmark Opportunity';
+        }
+      } catch (err) {}
+    }
+
+    function openChat() {
+      if (!currentJob) return;
+      window.location.href = `chat.html?user_id=${currentJob.employer_user_id}&job_id=${currentJob.id}`;
+    }
+  </script>
+</body>
+</html>

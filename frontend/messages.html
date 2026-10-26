@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body style="background: #f8fafc;">
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container" style="max-width: 1200px; padding: 1.5rem;">
+    
+    <div class="chat-container">
+      
+      <!-- Left: Conversations Threads List -->
+      <aside class="chat-sidebar">
+        <div style="padding: 1.25rem 1rem; border-bottom: 1px solid var(--gray-200); background: var(--white);">
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--dark-900);">Messages</h2>
+          <p style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.15rem;">Direct employer-student coordination</p>
+        </div>
+
+        <div id="conversations-list" class="chat-thread-list">
+          <div style="text-align: center; padding: 2rem; color: var(--gray-400); font-size: 0.85rem;">
+            Loading conversations...
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right: Active Chat Area -->
+      <main class="chat-main">
+        
+        <!-- Header -->
+        <div class="chat-header">
+          <div id="active-chat-user-info" style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--gray-200);"></div>
+            <div>
+              <h3 style="font-size: 1rem; font-weight: 700; color: var(--dark-900);">Select a Conversation</h3>
+              <p style="font-size: 0.75rem; color: var(--gray-500);">Start messaging</p>
+            </div>
+          </div>
+          <div id="active-job-badge"></div>
+        </div>
+
+        <!-- Messages Bubble Area -->
+        <div id="chat-messages" class="chat-messages-area">
+          <div style="text-align: center; margin: auto; color: var(--gray-400);">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💬</div>
+            <div style="font-weight: 600;">No conversation selected</div>
+            <div style="font-size: 0.85rem;">Pick a conversation from the left or message an employer from a job posting.</div>
+          </div>
+        </div>
+
+        <!-- Input Bar -->
+        <form id="chat-input-form" class="chat-input-bar">
+          <input type="text" id="chat-text-input" class="form-control" placeholder="Type a message..." required autocomplete="off" disabled>
+          <button type="submit" id="chat-send-btn" class="btn btn-primary" disabled>
+            Send
+          </button>
+        </form>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    let activeOtherUserId = null;
+    let activeJobId = null;
+    let pollInterval = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!requireAuth()) return;
+      setupNavbar('chat');
+
+      const params = new URLSearchParams(window.location.search);
+      const targetUserId = params.get('user_id');
+      const targetJobId = params.get('job_id');
+
+      if (targetUserId) {
+        activeOtherUserId = parseInt(targetUserId);
+        activeJobId = targetJobId ? parseInt(targetJobId) : null;
+      }
+
+      await loadConversations();
+
+      if (activeOtherUserId) {
+        await loadMessages(activeOtherUserId, activeJobId);
+      }
+
+      // Auto poll every 4 seconds for real-time conversation updates
+      pollInterval = setInterval(async () => {
+        if (activeOtherUserId) {
+          await loadMessages(activeOtherUserId, activeJobId, false);
+        }
+      }, 4000);
+    });
+
+    window.addEventListener('beforeunload', () => {
+      if (pollInterval) clearInterval(pollInterval);
+    });
+
+    async function loadConversations() {
+      try {
+        const res = await apiRequest('/chat/conversations');
+        const container = document.getElementById('conversations-list');
+        
+        if (res && res.conversations) {
+          if (res.conversations.length === 0 && !activeOtherUserId) {
+            container.innerHTML = `
+              <div style="text-align: center; padding: 2.5rem 1rem; color: var(--gray-500); font-size: 0.85rem;">
+                No conversations yet. Apply to jobs to start chatting with businesses!
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = res.conversations.map(c => `
+            <div class="chat-thread-item ${activeOtherUserId === c.other_user_id ? 'active' : ''}" onclick="selectConversation(event, ${c.other_user_id}, ${c.job_id || 'null'}, '${escapeHtml(c.other_user_name)}', '${c.other_user_avatar || ''}', '${escapeHtml(c.job_title || '')}')">
+              ${c.other_user_avatar ? `<img src="${c.other_user_avatar}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;">` : `<div style="width: 42px; height: 42px; border-radius: 50%; border: 1px dashed var(--gray-300); background: #f8fafc; flex-shrink: 0;"></div>`}
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                  <strong style="font-size: 0.9rem; color: var(--dark-900);">${c.other_user_name}</strong>
+                  <span style="font-size: 0.7rem; color: var(--gray-400);">${c.last_message_time ? new Date(c.last_message_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
+                </div>
+                ${c.job_title ? `<div style="font-size: 0.75rem; color: var(--primary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.job_title}</div>` : ''}
+                <div style="font-size: 0.8rem; color: var(--gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.15rem;">
+                  ${c.last_message || 'Start chatting...'}
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {}
+    }
+
+    async function selectConversation(evt, otherUserId, jobId, name, avatar, jobTitle) {
+      activeOtherUserId = otherUserId;
+      activeJobId = jobId;
+
+      document.querySelectorAll('.chat-thread-item').forEach(el => el.classList.remove('active'));
+      if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+
+      document.getElementById('active-chat-user-info').innerHTML = `
+        ${avatar ? `<img src="${avatar}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;">` : `<div style="width: 42px; height: 42px; border-radius: 50%; border: 1px dashed var(--gray-300); background: #f8fafc; flex-shrink: 0;"></div>`}
+        <div>
+          <h3 style="font-size: 1rem; font-weight: 700; color: var(--dark-900);">${name}</h3>
+          <p style="font-size: 0.75rem; color: var(--gray-500);">${jobTitle ? 'Role: ' + jobTitle : 'Online'}</p>
+        </div>
+      `;
+
+      document.getElementById('chat-text-input').disabled = false;
+      document.getElementById('chat-send-btn').disabled = false;
+      document.getElementById('chat-text-input').focus();
+
+      await loadMessages(otherUserId, jobId, true);
+    }
+
+    async function loadMessages(otherUserId, jobId, scroll = true) {
+      try {
+        let url = `/chat/messages/${otherUserId}`;
+        if (jobId) url += `?job_id=${jobId}`;
+        const res = await apiRequest(url);
+
+        if (res && res.messages) {
+          const container = document.getElementById('chat-messages');
+          const currentUser = getCurrentUser();
+
+          if (res.other_user && !document.getElementById('active-chat-user-info').querySelector('h3').innerText.includes(res.other_user.full_name)) {
+            document.getElementById('active-chat-user-info').innerHTML = `
+              ${res.other_user.avatar_url ? `<img src="${res.other_user.avatar_url}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;">` : `<div style="width: 42px; height: 42px; border-radius: 50%; border: 1px dashed var(--gray-300); background: #f8fafc; flex-shrink: 0;"></div>`}
+              <div>
+                <h3 style="font-size: 1rem; font-weight: 700; color: var(--dark-900);">${res.other_user.full_name}</h3>
+                <p style="font-size: 0.75rem; color: var(--gray-500);">${res.other_user.role === 'employer' ? 'Business Employer' : 'Student'}</p>
+              </div>
+            `;
+            document.getElementById('chat-text-input').disabled = false;
+            document.getElementById('chat-send-btn').disabled = false;
+          }
+
+          if (res.messages.length === 0) {
+            container.innerHTML = `
+              <div style="text-align: center; margin: auto; color: var(--gray-400); font-size: 0.85rem;">
+                No messages yet. Send a greeting to start coordinating!
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = res.messages.map(m => {
+            const isMine = m.sender_id === currentUser.id;
+            return `
+              <div class="chat-bubble ${isMine ? 'mine' : 'theirs'}">
+                <div>${m.message_text}</div>
+                <div class="timestamp">
+                  ${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          if (scroll) {
+            container.scrollTop = container.scrollHeight;
+          }
+        }
+      } catch (err) {}
+    }
+
+    document.getElementById('chat-input-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!activeOtherUserId) return;
+
+      const input = document.getElementById('chat-text-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+
+      try {
+        const res = await apiRequest('/chat/messages', {
+          method: 'POST',
+          body: JSON.stringify({
+            receiver_id: activeOtherUserId,
+            message_text: text,
+            job_id: activeJobId
+          })
+        });
+
+        if (res) {
+          await loadMessages(activeOtherUserId, activeJobId, true);
+          await loadConversations();
+        }
+      } catch (err) {}
+    });
+
+    function escapeHtml(text) {
+      return (text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Jobs | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body style="background: #f8fafc; min-height: 100vh; display: flex; flex-direction: column;">
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container" style="max-width: 900px; margin: 2rem auto; flex: 1;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark-900);">Saved Jobs & Bookmarks</h1>
+        <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 0.2rem;">Jobs you've saved for later review or to apply when ready.</p>
+      </div>
+      <a href="dashboard.html" class="btn btn-secondary btn-sm">← Back to AI Recommendations</a>
+    </div>
+
+    <div id="saved-list" style="display: flex; flex-direction: column; gap: 1rem;">
+      <div style="text-align: center; padding: 3rem; color: var(--gray-500);">Loading saved jobs...</div>
+    </div>
+
+  </div>
+
+  <!-- Apply Modal -->
+  <div id="apply-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-job-title" style="font-weight: 700; font-size: 1.15rem; color: var(--dark-900);">Apply for Position</h3>
+        <button onclick="closeApplyModal()" style="font-size: 1.25rem; color: var(--gray-400); background:none; border:none; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modal-job-id">
+        <div class="form-group">
+          <label class="form-label" for="cover-note">Short Note / Introduction for Employer</label>
+          <textarea id="cover-note" class="form-control" rows="4" placeholder="Mention why you're a good fit, your general availability, and relevant skills..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeApplyModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitApplication()">Submit Application</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth(['student'])) return;
+      setupNavbar('saved');
+      loadSavedJobs();
+    });
+
+    async function loadSavedJobs() {
+      const container = document.getElementById('saved-list');
+      try {
+        const res = await apiRequest('/saved-jobs');
+        const list = res.saved_jobs || [];
+
+        if (list.length === 0) {
+          container.innerHTML = `
+            <div class="card" style="padding: 3.5rem; text-align: center; color: var(--gray-500);">
+              <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">⭐</div>
+              <div style="font-weight: 700; font-size: 1.1rem; color: var(--dark-800);">No saved jobs yet</div>
+              <p style="font-size: 0.85rem; margin: 0.5rem 0 1.25rem 0;">Browse AI-recommended jobs or the live map and click "☆ Save" to bookmark them here.</p>
+              <a href="dashboard.html" class="btn btn-primary btn-sm">Explore Matches</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = list.map(job => `
+          <div class="card" style="padding: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem;">
+              <div>
+                <span class="badge" style="background:#e0e7ff; color:var(--primary); font-weight:700;">${job.category || 'General'}</span>
+                <span class="badge" style="background:#f1f5f9; color:var(--dark-700); margin-left:0.35rem;">${job.job_type || 'Part-time'}</span>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--dark-900); margin: 0.35rem 0;">
+                  <a href="job_details.html?id=${job.id}" style="color:inherit; text-decoration:none;">${job.title}</a>
+                </h3>
+                <div style="font-size: 0.9rem; color: var(--gray-600); font-weight: 500;">
+                  🏢 ${job.company_name} • 📍 ${job.location_address || job.company_address || 'Nearby'}
+                </div>
+              </div>
+
+              <div style="text-align: right;">
+                <div style="font-size: 1.25rem; font-weight: 800; color: #047857;">
+                  ₹${job.pay_amount} <span style="font-size:0.8rem; font-weight:500; color:var(--gray-500);">/ ${job.pay_frequency}</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--gray-400); margin-top: 0.25rem;">
+                  Saved: ${job.saved_at ? new Date(job.saved_at).toLocaleDateString() : ''}
+                </div>
+              </div>
+            </div>
+
+            <p style="color: var(--gray-600); font-size: 0.88rem; margin: 0.75rem 0; line-height: 1.5;">
+              ${(job.description || '').substring(0, 160)}${job.description && job.description.length > 160 ? '...' : ''}
+            </p>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gray-100); padding-top: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="font-size: 0.8rem; color: var(--gray-500);">
+                Status: <strong style="color: ${job.status === 'active' ? '#059669' : '#dc2626'};">${(job.status || 'active').toUpperCase()}</strong>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button class="btn btn-outline btn-sm" onclick="removeSavedJob(${job.id})" style="color: #dc2626; border-color: #fecdd3;">
+                  ✕ Remove
+                </button>
+                <a href="job_details.html?id=${job.id}" class="btn btn-secondary btn-sm">
+                  View Details
+                </a>
+                <button class="btn btn-primary btn-sm" onclick="openApplyModal(${job.id}, '${escapeHtml(job.title)}')">
+                  Apply Now ⚡
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div style="color: var(--danger); text-align: center; padding: 2rem;">Failed to load saved jobs: ${err.message}</div>`;
+      }
+    }
+
+    async function removeSavedJob(jobId) {
+      try {
+        await apiRequest(`/saved-jobs/${jobId}`, { method: 'POST' });
+        showToast('Job removed from bookmarks', 'success');
+        loadSavedJobs();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function escapeHtml(text) {
+      return (text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function openApplyModal(jobId, title) {
+      document.getElementById('modal-job-id').value = jobId;
+      document.getElementById('modal-job-title').innerText = `Apply for: ${title}`;
+      document.getElementById('cover-note').value = '';
+      document.getElementById('apply-modal').classList.add('active');
+    }
+
+    function closeApplyModal() {
+      document.getElementById('apply-modal').classList.remove('active');
+    }
+
+    async function submitApplication() {
+      const jobId = document.getElementById('modal-job-id').value;
+      const coverNote = document.getElementById('cover-note').value;
+      try {
+        const res = await apiRequest('/applications', {
+          method: 'POST',
+          body: JSON.stringify({ job_id: parseInt(jobId), cover_note: coverNote })
+        });
+        if (res) {
+          showToast('Application submitted successfully! 🚀', 'success');
+          closeApplyModal();
+        }
+      } catch (err) {}
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Profile | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body style="background: #f8fafc; min-height: 100vh; display: flex; flex-direction: column;">
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container" style="max-width: 860px; margin: 2rem auto; flex: 1;">
+
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark-900);">Company Profile</h1>
+        <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 0.2rem;">Update your company details — students will see this on every job you post.</p>
+      </div>
+      <a href="employer_dashboard.html" class="btn btn-secondary btn-sm">← Back to Dashboard</a>
+    </div>
+
+    <!-- Company Identity Card -->
+    <div class="card" style="padding: 2rem; margin-bottom: 1.5rem; border-left: 5px solid var(--primary);">
+      <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap;">
+        <div id="avatar-display" style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #fff; flex-shrink: 0;">🏢</div>
+        <div>
+          <div id="display-company" style="font-size: 1.4rem; font-weight: 800; color: var(--dark-900);">Loading...</div>
+          <div id="display-type" style="color: var(--gray-500); font-size: 0.9rem; margin-top: 0.2rem;"></div>
+          <div id="display-email" style="color: var(--gray-400); font-size: 0.8rem;"></div>
+        </div>
+      </div>
+
+      <form id="profile-form" onsubmit="saveProfile(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+
+          <!-- Full Name -->
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: var(--dark-800);">Contact Person Name</label>
+            <input type="text" id="full_name" class="form-input" placeholder="Your full name" required>
+          </div>
+
+          <!-- Phone -->
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: var(--dark-800);">Phone Number</label>
+            <input type="tel" id="phone" class="form-input" placeholder="+91 XXXXX XXXXX">
+          </div>
+
+          <!-- Company Name -->
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: var(--dark-800);">Company / Business Name <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="company_name" class="form-input" placeholder="Your company or business name" required>
+          </div>
+
+          <!-- Business Type -->
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: var(--dark-800);">Business Type</label>
+            <select id="business_type" class="form-input">
+              <option value="">-- Select type --</option>
+              <option value="Restaurant">Restaurant / Food & Beverages</option>
+              <option value="Retail">Retail / Shop</option>
+              <option value="IT Services">IT Services / Technology</option>
+              <option value="Education">Education / Tutoring</option>
+              <option value="Healthcare">Healthcare / Medical</option>
+              <option value="Logistics">Logistics / Delivery</option>
+              <option value="Events">Events / Entertainment</option>
+              <option value="Freelance">Freelance Platform</option>
+              <option value="NGO">NGO / Non-profit</option>
+              <option value="Manufacturing">Manufacturing</option>
+              <option value="Construction">Construction</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Website -->
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: var(--dark-800);">Website (optional)</label>
+            <input type="url" id="website" class="form-input" placeholder="https://yourcompany.com">
+          </div>
+
+          <!-- Address -->
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: var(--dark-800);">Business Address</label>
+            <input type="text" id="address" class="form-input" placeholder="Street, City, State">
+          </div>
+
+          <!-- Latitude -->
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: var(--dark-800);">Latitude <span style="color:var(--gray-400); font-weight:400;">(for location matching)</span></label>
+            <input type="number" step="any" id="latitude" class="form-input" placeholder="e.g. 17.3850">
+          </div>
+
+          <!-- Longitude -->
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: var(--dark-800);">Longitude</label>
+            <input type="number" step="any" id="longitude" class="form-input" placeholder="e.g. 78.4867">
+          </div>
+
+        </div>
+
+        <!-- Description -->
+        <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 1.25rem;">
+          <label style="font-weight: 600; font-size: 0.85rem; color: var(--dark-800);">Company Description</label>
+          <textarea id="description" class="form-input" rows="5" placeholder="Tell students about your company, work culture, what you do, and why they should join you..."></textarea>
+          <div style="color: var(--gray-400); font-size: 0.78rem;">This appears on all your job listings. A good description attracts quality applicants.</div>
+        </div>
+
+        <!-- Location Helper -->
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 1rem; margin-top: 1.25rem;">
+          <div style="font-weight: 600; color: #166534; font-size: 0.85rem; margin-bottom: 0.5rem;">📍 Get My Location Automatically</div>
+          <p style="font-size: 0.82rem; color: #166534; margin-bottom: 0.75rem;">Click below to auto-fill latitude and longitude from your browser's GPS. This improves student location matching.</p>
+          <button type="button" class="btn btn-sm" style="background:#16a34a; color:#fff;" onclick="detectLocation()">📡 Detect My Location</button>
+          <span id="location-status" style="font-size: 0.8rem; color: var(--gray-500); margin-left: 0.75rem;"></span>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.75rem; justify-content: flex-end;">
+          <a href="employer_dashboard.html" class="btn btn-outline">Cancel</a>
+          <button type="submit" class="btn btn-primary" id="save-btn">
+            💾 Save Company Profile
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Stats panel below form -->
+    <div class="card" style="padding: 1.5rem;">
+      <h2 style="font-size: 1rem; font-weight: 700; color: var(--dark-900); margin-bottom: 1rem;">📊 Your Hiring Activity</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+        <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: var(--radius-md);">
+          <div id="stat-total-jobs" style="font-size: 2rem; font-weight: 800; color: var(--primary);">--</div>
+          <div style="font-size: 0.78rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase;">Total Jobs</div>
+        </div>
+        <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: var(--radius-md);">
+          <div id="stat-active-jobs" style="font-size: 2rem; font-weight: 800; color: #059669;">--</div>
+          <div style="font-size: 0.78rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase;">Active Jobs</div>
+        </div>
+        <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: var(--radius-md);">
+          <div id="stat-applicants" style="font-size: 2rem; font-weight: 800; color: #7c3aed;">--</div>
+          <div style="font-size: 0.78rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase;">Total Applicants</div>
+        </div>
+        <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: var(--radius-md);">
+          <div id="stat-shortlisted" style="font-size: 2rem; font-weight: 800; color: #ea580c;">--</div>
+          <div style="font-size: 0.78rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase;">Shortlisted</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth(['employer'])) return;
+      setupNavbar('employer_dashboard');
+      loadProfile();
+      loadStats();
+    });
+
+    async function loadProfile() {
+      try {
+        const res = await apiRequest('/employers/profile');
+        if (!res || !res.profile) return;
+        const p = res.profile;
+
+        // Update identity display
+        document.getElementById('display-company').innerText = p.company_name || 'Your Company';
+        document.getElementById('display-type').innerText = p.business_type || '';
+        document.getElementById('display-email').innerText = p.email || '';
+
+        if (p.company_name) {
+          document.getElementById('avatar-display').innerText = p.company_name.charAt(0).toUpperCase();
+        }
+
+        // Fill form
+        document.getElementById('full_name').value = p.full_name || '';
+        document.getElementById('phone').value = p.phone || '';
+        document.getElementById('company_name').value = p.company_name || '';
+        document.getElementById('business_type').value = p.business_type || '';
+        document.getElementById('website').value = p.website || '';
+        document.getElementById('address').value = p.address || '';
+        document.getElementById('latitude').value = p.latitude || '';
+        document.getElementById('longitude').value = p.longitude || '';
+        document.getElementById('description').value = p.description || '';
+      } catch (err) {
+        showToast('Failed to load profile: ' + err.message, 'error');
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const res = await apiRequest('/employers/dashboard_stats');
+        if (res) {
+          document.getElementById('stat-total-jobs').innerText = res.total_jobs ?? '--';
+          document.getElementById('stat-active-jobs').innerText = res.active_jobs ?? '--';
+          document.getElementById('stat-applicants').innerText = res.total_applicants ?? '--';
+          document.getElementById('stat-shortlisted').innerText = res.shortlisted_applicants ?? '--';
+        }
+      } catch (_) {}
+    }
+
+    async function saveProfile(e) {
+      e.preventDefault();
+      const btn = document.getElementById('save-btn');
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      const data = {
+        full_name: document.getElementById('full_name').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        company_name: document.getElementById('company_name').value.trim(),
+        business_type: document.getElementById('business_type').value,
+        website: document.getElementById('website').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        description: document.getElementById('description').value.trim()
+      };
+
+      const lat = parseFloat(document.getElementById('latitude').value);
+      const lon = parseFloat(document.getElementById('longitude').value);
+      if (!isNaN(lat)) data.latitude = lat;
+      if (!isNaN(lon)) data.longitude = lon;
+
+      if (!data.company_name) {
+        showToast('Company name is required', 'error');
+        btn.disabled = false;
+        btn.innerText = '💾 Save Company Profile';
+        return;
+      }
+
+      try {
+        const res = await apiRequest('/employers/profile', {
+          method: 'PUT',
+          body: JSON.stringify(data)
+        });
+        showToast(res.message || 'Profile updated successfully!', 'success');
+        // Refresh display
+        document.getElementById('display-company').innerText = data.company_name;
+        document.getElementById('display-type').innerText = data.business_type || '';
+        if (data.company_name) {
+          document.getElementById('avatar-display').innerText = data.company_name.charAt(0).toUpperCase();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '💾 Save Company Profile';
+      }
+    }
+
+    function detectLocation() {
+      const statusEl = document.getElementById('location-status');
+      if (!navigator.geolocation) {
+        statusEl.innerText = 'Geolocation not supported by your browser.';
+        return;
+      }
+      statusEl.innerText = 'Detecting...';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          document.getElementById('latitude').value = pos.coords.latitude.toFixed(6);
+          document.getElementById('longitude').value = pos.coords.longitude.toFixed(6);
+          statusEl.innerText = `✓ Location detected (±${Math.round(pos.coords.accuracy)}m accuracy)`;
+          showToast('Location detected successfully!', 'success');
+        },
+        (err) => {
+          statusEl.innerText = 'Could not detect location. Please enter manually.';
+          showToast('Location detection failed: ' + err.message, 'error');
+        }
+      );
+    }
+  </script>
+</body>
+</html>

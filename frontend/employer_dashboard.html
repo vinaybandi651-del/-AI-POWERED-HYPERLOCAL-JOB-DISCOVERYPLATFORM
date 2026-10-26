@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employer Dashboard | HyperLocal Job Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container"></div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Employer Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 id="company-title" style="font-size: 1.85rem; font-weight: 800; color: var(--dark-900);">Business Dashboard</h1>
+        <p id="company-subtitle" style="color: var(--gray-500); font-size: 0.95rem; margin-top: 0.2rem;">Manage student applicants and active job opportunities</p>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn btn-primary" onclick="openPostJobModal()">
+          ➕ Post a New Job
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+      <div class="card" style="padding: 1.5rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--gray-500); text-transform: uppercase;">Active Postings</div>
+        <div id="stat-active-jobs" style="font-size: 2.25rem; font-weight: 800; color: var(--primary); margin-top: 0.35rem;">-</div>
+      </div>
+      <div class="card" style="padding: 1.5rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--gray-500); text-transform: uppercase;">Total Applicants</div>
+        <div id="stat-total-applicants" style="font-size: 2.25rem; font-weight: 800; color: #0284c7; margin-top: 0.35rem;">-</div>
+      </div>
+      <div class="card" style="padding: 1.5rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--gray-500); text-transform: uppercase;">Shortlisted Candidates</div>
+        <div id="stat-shortlisted" style="font-size: 2.25rem; font-weight: 800; color: #059669; margin-top: 0.35rem;">-</div>
+      </div>
+    </div>
+
+    <!-- Active Jobs Table / Card List -->
+    <div class="card" style="padding: 1.75rem; margin-bottom: 3rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 700;">My Job Postings</h2>
+      </div>
+
+      <div id="employer-jobs-list" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="text-align: center; padding: 3rem; color: var(--gray-500);">Loading postings...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Post a Job Modal -->
+  <div id="post-job-modal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 720px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 style="font-weight: 700; font-size: 1.2rem;">Post a New Graduate Job / Internship Opportunity</h3>
+        <button onclick="closePostJobModal()" style="font-size: 1.25rem; color: var(--gray-400);">&times;</button>
+      </div>
+      <form id="post-job-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="job-title">Job Title</label>
+            <input type="text" id="job-title" class="form-control" placeholder="e.g. Junior Software Engineer / QA Analyst Trainee" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="job-category">Category</label>
+              <select id="job-category" class="form-control" required>
+                <option value="Tech & IT">Tech & IT</option>
+                <option value="Design & Creative">Design & Creative</option>
+                <option value="Marketing & Events">Marketing & Events</option>
+                <option value="Office & Administration">Office & Administration</option>
+                <option value="Tutoring & Education">Tutoring & Education</option>
+                <option value="Retail & Sales">Retail & Sales</option>
+                <option value="Hospitality & Food">Hospitality & Food</option>
+                <option value="Logistics & Delivery">Logistics & Delivery</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="job-type">Employment Type</label>
+              <select id="job-type" class="form-control">
+                <option value="Full-time">Full-time Regular</option>
+                <option value="Internship">Internship / Graduate Trainee</option>
+                <option value="Contract">Contract / Project-based</option>
+                <option value="Part-time">Part-time</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Graduate & Work Arrangement Details -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="min-qualification">Min Educational Qualification</label>
+              <select id="min-qualification" class="form-control">
+                <option value="Any Graduate">Any Graduate / Any Degree</option>
+                <option value="B.Tech" selected>B.Tech / B.E.</option>
+                <option value="BCA">BCA</option>
+                <option value="MCA">MCA</option>
+                <option value="B.Sc">B.Sc</option>
+                <option value="B.Com">B.Com</option>
+                <option value="BBA">BBA</option>
+                <option value="MBA">MBA</option>
+                <option value="Diploma">Diploma / Polytechnic</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="work-arrangement">Work Arrangement</label>
+              <select id="work-arrangement" class="form-control">
+                <option value="On-site">🏢 On-site</option>
+                <option value="Hybrid">🔄 Hybrid</option>
+                <option value="Remote">🌐 Remote (Work from Anywhere)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Fresher Eligibility -->
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-sm); padding: 0.85rem 1rem; margin-bottom: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 700; color: #15803d;">
+              <input type="checkbox" id="is-fresher-friendly" checked style="width: 18px; height: 18px; accent-color: #15803d;">
+              <span>🎓 Fresher Friendly (Open to 0 years experience candidates)</span>
+            </label>
+            <span style="display: block; font-size: 0.8rem; color: #166534; margin-left: 1.65rem; margin-top: 0.2rem;">
+              Fresh graduates and passed-out students with no previous work experience will receive top recommendation ranking for this role.
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="min-exp-years">Min Required Experience (Years)</label>
+              <input type="number" id="min-exp-years" class="form-control" value="0" min="0" max="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="workers-needed">Number of Openings</label>
+              <input type="number" id="workers-needed" class="form-control" value="2" min="1">
+            </div>
+          </div>
+
+          <!-- Compensation CTC Range -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="salary-min">Min Annual Compensation (₹ CTC)</label>
+              <input type="number" id="salary-min" class="form-control" placeholder="e.g. 350000" min="50000" step="10000">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="salary-max">Max Annual Compensation (₹ CTC)</label>
+              <input type="number" id="salary-max" class="form-control" placeholder="e.g. 550000" min="50000" step="10000">
+            </div>
+          </div>
+
+          <!-- Base Pay fallback -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="pay-amount">Base Stipend / Pay (₹)</label>
+              <input type="number" id="pay-amount" class="form-control" placeholder="e.g. 30000" required min="50">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="pay-frequency">Frequency</label>
+              <select id="pay-frequency" class="form-control">
+                <option value="month" selected>Per Month</option>
+                <option value="year">Per Year</option>
+                <option value="day">Per Day</option>
+                <option value="hour">Per Hour</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="required-skills">Required Technical & Soft Skills (comma separated)</label>
+            <input type="text" id="required-skills" class="form-control" placeholder="e.g. Python, SQL, REST APIs, Git, Problem Solving" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="job-address">Job Location / Office Address</label>
+            <input type="text" id="job-address" class="form-control" placeholder="e.g. Hitec City, Hyderabad" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="job-description">Job Overview</label>
+            <textarea id="job-description" class="form-control" rows="3" placeholder="Provide a summary of the role, team, and learning opportunities..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="job-responsibilities">Key Responsibilities (Optional)</label>
+            <textarea id="job-responsibilities" class="form-control" rows="2" placeholder="e.g. Develop backend services, write unit tests, collaborate in Agile sprints..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="job-eligibility">Eligibility & Academic Criteria (Optional)</label>
+            <textarea id="job-eligibility" class="form-control" rows="2" placeholder="e.g. 2024-2026 pass-outs with 60%+ throughout academics. Freshers welcome to apply."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closePostJobModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="post-job-btn">Publish Graduate Opportunity</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Applicants Drawer / Modal -->
+  <div id="applicants-modal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 820px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="app-modal-job-title" style="font-weight: 700; font-size: 1.2rem;">Applicants</h3>
+          <p id="app-modal-job-sub" style="font-size: 0.8rem; color: var(--gray-500);"></p>
+        </div>
+        <button onclick="closeApplicantsModal()" style="font-size: 1.25rem; color: var(--gray-400);">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <div id="applicants-list-container" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div style="text-align: center; padding: 2rem; color: var(--gray-500);">Loading applicants...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    let myEmployerProfile = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!requireAuth(['employer'])) return;
+      setupNavbar('employer_dashboard');
+      await loadEmployerData();
+    });
+
+    async function loadEmployerData() {
+      try {
+        const [profileRes, statsRes, jobsRes] = await Promise.all([
+          apiRequest('/employers/profile'),
+          apiRequest('/employers/dashboard_stats'),
+          apiRequest('/jobs?status=all')
+        ]);
+
+        if (profileRes && profileRes.profile) {
+          myEmployerProfile = profileRes.profile;
+          document.getElementById('company-title').innerText = `${myEmployerProfile.company_name} Dashboard`;
+          document.getElementById('company-subtitle').innerText = `📍 ${myEmployerProfile.address || 'Local'} • ${myEmployerProfile.business_type || 'Business'}`;
+        }
+
+        if (statsRes) {
+          document.getElementById('stat-active-jobs').innerText = statsRes.active_jobs || 0;
+          document.getElementById('stat-total-applicants').innerText = statsRes.total_applicants || 0;
+          document.getElementById('stat-shortlisted').innerText = statsRes.shortlisted_applicants || 0;
+        }
+
+        if (jobsRes && jobsRes.jobs) {
+          // Filter to this employer's jobs
+          const myJobs = jobsRes.jobs.filter(j => j.employer_id === myEmployerProfile.id);
+          renderEmployerJobs(myJobs);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderEmployerJobs(jobs) {
+      const container = document.getElementById('employer-jobs-list');
+      if (jobs.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
+            No job postings yet. Click <strong>"Post a New Job"</strong> to publish your first opportunity!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = jobs.map(j => {
+        const isActive = j.status === 'active';
+        const isFresher = j.is_fresher_friendly || j.min_experience_years === 0;
+        const arrangement = j.work_arrangement || 'On-site';
+
+        let arrangementBadge = '';
+        if (arrangement === 'Remote') arrangementBadge = `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">🌐 Remote</span>`;
+        else if (arrangement === 'Hybrid') arrangementBadge = `<span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700;">🔄 Hybrid</span>`;
+        else arrangementBadge = `<span class="badge" style="background:#f1f5f9; color:#475569;">🏢 On-site</span>`;
+
+        const fresherBadge = isFresher ? `<span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;">🎓 Fresher Friendly</span>` : '';
+        const qualBadge = j.min_qualification ? `<span class="badge" style="background:#f3e8ff; color:#7e22ce; font-weight:600;">📜 Min: ${j.min_qualification}</span>` : '';
+
+        let payDisplay = '';
+        if (j.salary_min && j.salary_max) {
+          payDisplay = `💰 ₹${Number(j.salary_min).toLocaleString('en-IN')} - ₹${Number(j.salary_max).toLocaleString('en-IN')} / yr`;
+        } else if (j.pay_amount) {
+          payDisplay = `💰 ₹${Number(j.pay_amount).toLocaleString('en-IN')}/${j.pay_frequency || 'month'}`;
+        }
+
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem; border: 1px solid var(--gray-200); border-radius: var(--radius-md); background: ${isActive ? 'var(--white)' : 'var(--gray-50)'}; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--dark-900);">${j.title}</h3>
+                <span class="badge ${isActive ? 'status-accepted' : 'status-completed'}">${j.status.toUpperCase()}</span>
+                ${fresherBadge}
+                ${arrangementBadge}
+                ${qualBadge}
+              </div>
+              <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--gray-500); margin-top: 0.4rem; flex-wrap: wrap;">
+                <span>${payDisplay}</span>
+                <span>⏳ ${isFresher ? '0 Yrs (Fresher)' : `${j.min_experience_years || 0}+ Yrs Exp`}</span>
+                <span>👥 ${j.workers_needed} needed</span>
+                <span>📍 ${arrangement === 'Remote' ? 'Remote' : (j.location_address || 'Hyderabad')}</span>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-sm" onclick="viewApplicants(${j.id}, '${escapeHtml(j.title)}')">
+                👥 View Applicants
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="toggleJobStatus(${j.id}, '${isActive ? 'completed' : 'active'}')">
+                ${isActive ? 'Close Job' : 'Reactivate'}
+              </button>
+              <button class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger);" onclick="deleteJob(${j.id}, '${escapeHtml(j.title)}')">
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function openPostJobModal() {
+      if (myEmployerProfile) {
+        document.getElementById('job-address').value = myEmployerProfile.address || '';
+      }
+      document.getElementById('post-job-modal').classList.add('active');
+    }
+
+    function closePostJobModal() {
+      document.getElementById('post-job-modal').classList.remove('active');
+    }
+
+    document.getElementById('post-job-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('post-job-btn');
+      btn.disabled = true;
+      btn.innerText = 'Publishing...';
+
+      const salMin = document.getElementById('salary-min').value;
+      const salMax = document.getElementById('salary-max').value;
+
+      const payload = {
+        title: document.getElementById('job-title').value.trim(),
+        category: document.getElementById('job-category').value,
+        job_type: document.getElementById('job-type').value,
+        min_qualification: document.getElementById('min-qualification').value,
+        work_arrangement: document.getElementById('work-arrangement').value,
+        is_fresher_friendly: document.getElementById('is-fresher-friendly').checked ? 1 : 0,
+        min_experience_years: parseInt(document.getElementById('min-exp-years').value) || 0,
+        salary_min: salMin ? parseFloat(salMin) : null,
+        salary_max: salMax ? parseFloat(salMax) : null,
+        pay_amount: parseFloat(document.getElementById('pay-amount').value),
+        pay_frequency: document.getElementById('pay-frequency').value,
+        date_needed: 'Immediate',
+        start_time: '10:00',
+        end_time: '18:00',
+        workers_needed: parseInt(document.getElementById('workers-needed').value) || 1,
+        experience_required: document.getElementById('is-fresher-friendly').checked ? 'No Experience' : 'Intermediate',
+        location_address: document.getElementById('job-address').value.trim(),
+        description: document.getElementById('job-description').value.trim(),
+        responsibilities: document.getElementById('job-responsibilities').value.trim(),
+        eligibility: document.getElementById('job-eligibility').value.trim(),
+        skills: document.getElementById('required-skills').value.split(',').map(s => s.trim()).filter(Boolean)
+      };
+
+      try {
+        const res = await apiRequest('/jobs', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        if (res) {
+          showToast('Graduate job opportunity published successfully! 🎉', 'success');
+          closePostJobModal();
+          await loadEmployerData();
+        }
+      } catch (err) {
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Publish Graduate Opportunity';
+      }
+    });
+
+    async function toggleJobStatus(jobId, newStatus) {
+      try {
+        const res = await apiRequest(`/jobs/${jobId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: newStatus })
+        });
+        if (res) {
+          showToast(res.message, 'success');
+          await loadEmployerData();
+        }
+      } catch (err) {}
+    }
+
+    async function viewApplicants(jobId, jobTitle) {
+      document.getElementById('app-modal-job-title').innerText = `Applicants for: ${jobTitle}`;
+      document.getElementById('applicants-modal').classList.add('active');
+      const container = document.getElementById('applicants-list-container');
+      container.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--gray-500);">Loading candidate profiles...</div>`;
+
+      try {
+        const res = await apiRequest(`/applications/job/${jobId}`);
+        if (res && res.applicants) {
+          if (res.applicants.length === 0) {
+            container.innerHTML = `
+              <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                No applicants yet for this posting.
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = res.applicants.map(app => {
+            const eduTitle = app.degree ? `${app.degree}${app.specialization ? ' (' + app.specialization + ')' : ''}` : (app.education || 'Graduate');
+            const college = app.college_name || app.institution || 'University';
+            const gradYear = app.graduation_year ? `Class of ${app.graduation_year}` : '';
+
+            let resumeHtml = '';
+            if (app.resume_url) {
+              const cleanUrl = app.resume_url.startsWith('http') ? app.resume_url : `/api${app.resume_url.startsWith('/') ? '' : '/'}${app.resume_url}`;
+              resumeHtml = `
+                <a href="${cleanUrl}" target="_blank" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:0.35rem; font-weight:700; color:var(--primary); border-color:var(--primary);">
+                  📄 View / Download Candidate Resume
+                </a>
+              `;
+            } else {
+              resumeHtml = `<span style="font-size:0.8rem; color:var(--gray-400);">No resume attached</span>`;
+            }
+
+            return `
+              <div class="card" style="padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem;">
+                  <div style="display: flex; gap: 1rem; align-items: center;">
+                    ${app.avatar_url ? `<img src="${app.avatar_url}" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover;">` : `<div style="width: 52px; height: 52px; border-radius: 50%; border: 1.5px dashed var(--gray-300); background: #f8fafc; flex-shrink: 0;"></div>`}
+                    <div>
+                      <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--dark-900);">${app.student_name}</h4>
+                      <div style="font-size: 0.85rem; font-weight:600; color: var(--primary);">${eduTitle} • ${college} ${gradYear ? '(' + gradYear + ')' : ''}</div>
+                      <div style="display: flex; gap: 0.75rem; font-size: 0.8rem; color: var(--gray-500); margin-top: 0.2rem; flex-wrap:wrap;">
+                        <span class="badge" style="background:#ecfdf5; color:#047857;">🌱 ${app.fresher_status || 'Fresher'}</span>
+                        <span style="color:var(--primary); font-weight:600;">📍 ${app.formatted_distance || 'Nearby'}</span>
+                        <span>Target CTC: ₹${app.expected_salary ? Number(app.expected_salary).toLocaleString('en-IN') : 'Competitive'}/${app.salary_type || 'year'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="text-align: right;">
+                    <span class="badge status-${app.status}">${app.status.replace('_', ' ').toUpperCase()}</span>
+                  </div>
+                </div>
+
+                ${app.cover_note ? `
+                  <div style="background: var(--gray-50); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin: 0.85rem 0; font-size: 0.85rem; color: var(--dark-700); font-style: italic;">
+                    "${app.cover_note}"
+                  </div>
+                ` : ''}
+
+                <!-- Candidate Resume Link -->
+                <div style="margin: 0.65rem 0; padding: 0.5rem 0.75rem; background:#f8fafc; border-radius:var(--radius-sm); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                  ${resumeHtml}
+                  ${app.status_notes ? `<span style="font-size:0.8rem; color:var(--gray-600);">Note: <em>${app.status_notes}</em></span>` : ''}
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; align-items: center;">
+                  <span style="font-size: 0.75rem; color: var(--gray-500); font-weight: 600;">Candidate Skills:</span>
+                  ${(app.skills || []).map(s => {
+                    const matched = (app.matched_skills || []).some(ms => ms.toLowerCase() === s.toLowerCase());
+                    return `<span class="skill-tag ${matched ? 'matched' : ''}">${matched ? '✓ ' : ''}${s}</span>`;
+                  }).join('')}
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-100); flex-wrap: wrap; gap: 0.5rem;">
+                  <a href="chat.html?user_id=${app.student_user_id}&job_id=${jobId}" class="btn btn-outline btn-sm">
+                    💬 Message Candidate
+                  </a>
+
+                  <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                    ${app.status !== 'under_review' && app.status !== 'shortlisted' && app.status !== 'accepted' ? `<button class="btn btn-secondary btn-sm" onclick="promptStatusUpdate(${app.application_id}, 'under_review')">Reviewing</button>` : ''}
+                    ${app.status !== 'shortlisted' && app.status !== 'accepted' ? `<button class="btn btn-secondary btn-sm" style="color:var(--primary); font-weight:700;" onclick="promptStatusUpdate(${app.application_id}, 'shortlisted')">Shortlist</button>` : ''}
+                    ${app.status !== 'accepted' ? `<button class="btn btn-primary btn-sm" style="background:#059669;" onclick="promptStatusUpdate(${app.application_id}, 'accepted')">Accept</button>` : ''}
+                    ${app.status !== 'rejected' && app.status !== 'accepted' ? `<button class="btn btn-secondary btn-sm" style="color:var(--danger);" onclick="promptStatusUpdate(${app.application_id}, 'rejected')">Reject</button>` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (err) {}
+    }
+
+    async function promptStatusUpdate(appId, newStatus) {
+      const note = prompt(`Enter optional note/instructions for applicant (Status: ${newStatus.toUpperCase()}):`, '') || '';
+      await updateAppStatus(appId, newStatus, note);
+    }
+
+    async function updateAppStatus(appId, newStatus, notes = '') {
+      try {
+        const res = await apiRequest(`/applications/${appId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: newStatus, notes: notes })
+        });
+        if (res) {
+          showToast(res.message || `Application marked as ${newStatus}`, 'success');
+          closeApplicantsModal();
+          await loadEmployerData();
+        }
+      } catch (err) {}
+    }
+
+    function closeApplicantsModal() {
+      document.getElementById('applicants-modal').classList.remove('active');
+    }
+
+    function openEmployerReviewModal(jobId, studentUserId, studentName) {
+      document.getElementById('emp-review-job-id').value = jobId;
+      document.getElementById('emp-review-reviewee-id').value = studentUserId;
+      document.getElementById('emp-review-modal-title').innerText = `Rate ${studentName}`;
+      document.getElementById('emp-review-comment').value = '';
+      document.getElementById('emp-review-rating').value = '5';
+      document.getElementById('emp-review-modal').classList.add('active');
+    }
+
+    function closeEmployerReviewModal() {
+      document.getElementById('emp-review-modal').classList.remove('active');
+    }
+
+    async function submitEmployerReview(e) {
+      e.preventDefault();
+      const jobId = parseInt(document.getElementById('emp-review-job-id').value);
+      const revieweeId = parseInt(document.getElementById('emp-review-reviewee-id').value);
+      const rating = parseFloat(document.getElementById('emp-review-rating').value);
+      const comment = document.getElementById('emp-review-comment').value.trim();
+      const btn = document.getElementById('emp-submit-review-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Submitting...';
+
+      try {
+        const res = await apiRequest('/reviews', {
+          method: 'POST',
+          body: JSON.stringify({
+            job_id: jobId,
+            reviewee_id: revieweeId,
+            rating: rating,
+            comment: comment
+          })
+        });
+
+        if (res) {
+          showToast('Student feedback and rating submitted successfully! ⭐', 'success');
+          closeEmployerReviewModal();
+        }
+      } catch (err) {
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Submit Feedback';
+      }
+    }
+  </script>
+
+  <!-- Employer Review Student Modal -->
+  <div id="emp-review-modal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 id="emp-review-modal-title" style="font-weight: 700; font-size: 1.15rem; color: var(--dark-900);">Rate Student Performance</h3>
+        <button onclick="closeEmployerReviewModal()" style="font-size: 1.25rem; color: var(--gray-400); background:none; border:none; cursor:pointer;">&times;</button>
+      </div>
+
+      <form onsubmit="submitEmployerReview(event)">
+        <div class="modal-body">
+          <input type="hidden" id="emp-review-job-id">
+          <input type="hidden" id="emp-review-reviewee-id">
+
+          <div class="form-group">
+            <label class="form-label" for="emp-review-rating">Performance Rating</label>
+            <select id="emp-review-rating" class="form-control">
+              <option value="5">⭐⭐⭐⭐⭐ 5.0 - Outstanding Contributor</option>
+              <option value="4">⭐⭐⭐⭐ 4.0 - Reliable & Effective</option>
+              <option value="3">⭐⭐⭐ 3.0 - Satisfactory</option>
+              <option value="2">⭐⭐ 2.0 - Needed Improvement</option>
+              <option value="1">⭐ 1.0 - Unsatisfactory</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="emp-review-comment">Review Notes / Feedback</label>
+            <textarea id="emp-review-comment" class="form-control" rows="4" placeholder="Describe punctuality, work ethic, attitude, quality of work..." required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeEmployerReviewModal()">Cancel</button>
+          <button type="submit" id="emp-submit-review-btn" class="btn btn-primary">Submit Feedback</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
